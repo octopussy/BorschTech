@@ -5,17 +5,30 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "dascript",
+            "name": "(gdb) Launch",
+            "type": "cppdbg",
             "request": "launch",
-            "name": "daScript: launch",
-            "program": "D:/daScript/bin/Release/daScript.exe ${file}",
-            "cwd": "${fileDirname}"
-        },
-        {
-            "type": "dascript",
-            "request": "attach",
-            "name": "daScript: attach",
-            "port": 10000
+            "program": "enter program name, for example ${workspaceFolder}/a.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "/path/to/gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description":  "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
         }
+        
     ]
 }

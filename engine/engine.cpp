@@ -2,14 +2,15 @@
 
 using namespace das;
 
-#define TUTORIAL_NAME   "/tutorial01.das"
+#define TUTORIAL_NAME   "/../../engine/tutorial01.das"
 
 void tutorial () {
     TextPrinter tout;                               // output stream for all compiler messages (stdout. for stringstream use TextWriter)
     ModuleGroup dummyLibGroup;                      // module group for compiled program
     auto fAccess = make_smart<FsFileAccess>();      // default file access
     // compile program
-
+    
+    tout << "ROOT: " << getDasRoot() << "\n";
     auto program = compileDaScript(getDasRoot() + TUTORIAL_NAME, fAccess, tout, dummyLibGroup);
     if ( program->failed() ) {
         // if compilation failed, report errors
