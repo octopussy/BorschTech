@@ -1,68 +1,62 @@
+#include "daScript/daScript.h"
 
-#include <stdio.h>
-#include <bx/uint32_t.h>
-#include <bgfx/bgfx.h>
+using namespace das;
 
-#if BX_PLATFORM_LINUX
-#define GLFW_EXPOSE_NATIVE_X11
-#elif BX_PLATFORM_WINDOWS
-#define GLFW_EXPOSE_NATIVE_WIN32
-#elif BX_PLATFORM_OSX
-#define GLFW_EXPOSE_NATIVE_COCOA
-#endif
-#include <GLFW/glfw3native.h>
+#define TUTORIAL_NAME   "/tutorial01.das"
 
-static bool s_showStats = false;
+void tutorial () {
+    TextPrinter tout;                               // output stream for all compiler messages (stdout. for stringstream use TextWriter)
+    ModuleGroup dummyLibGroup;                      // module group for compiled program
+    auto fAccess = make_smart<FsFileAccess>();      // default file access
+    // compile program
 
-static void glfw_errorCallback(int error, const char *description)
-{
-    fprintf(stderr, "GLFW error %d: %s\n", error, description);
-}
-
-static void glfw_keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_F1 && action == GLFW_RELEASE)
-        s_showStats = !s_showStats;
-}
-
-int main(int argc, char* argv[])
-{
-    bgfx::Init init;
-    //init.type     = args.m_type;
-    //init.vendorId = args.m_pciId;
-    init.resolution.width  = 800;
-    init.resolution.height = 600;
-    init.resolution.reset  = BGFX_RESET_VSYNC;
-    bgfx::init(init);
-    // Enable debug text.
-    bgfx::setDebug(BGFX_DEBUG_TEXT);
-
-    // Set view 0 clear state.
-    bgfx::setViewClear(0
-        , BGFX_CLEAR_COLOR|BGFX_CLEAR_DEPTH
-        , 0x303030ff
-        , 1.0f
-        , 0
-        );
-    bgfx::frame();
-
-    WindowHandle defaultWindow = { 0 };
-    setWindowSize(defaultWindow, s_width, s_height);
-
-#if BX_PLATFORM_EMSCRIPTEN
-    s_app = _app;
-    emscripten_set_main_loop(&updateApp, -1, 1);
-#else
-    while (_app->update() )
-    {
-        if (0 != bx::strLen(s_restartArgs) )
-        {
-            break;
+    auto program = compileDaScript(getDasRoot() + TUTORIAL_NAME, fAccess, tout, dummyLibGroup);
+    if ( program->failed() ) {
+        // if compilation failed, report errors
+        tout << "failed to compile\n";
+        for ( auto & err : program->errors ) {
+            tout << reportError(err.at, err.what, err.extra, err.fixme, err.cerr );
         }
+        return;
     }
-#endif // BX_PLATFORM_EMSCRIPTEN
+    // create daScript context
+    Context ctx(program->getContextStackSize());
+    if ( !program->simulate(ctx, tout) ) {
+        // if interpretation failed, report errors
+        tout << "failed to simulate\n";
+        for ( auto & err : program->errors ) {
+            tout << reportError(err.at, err.what, err.extra, err.fixme, err.cerr );
+        }
+        return;
+    }
+    // find function 'test' in the context
+    auto fnTest = ctx.findFunction("test");
+    if ( !fnTest ) {
+        tout << "function 'test' not found\n";
+        return;
+    }
+    // verify if 'test' is a function, with the correct signature
+    // note, this operation is slow, so don't do it every time for every call
+    if ( !verifyCall<void>(fnTest->debugInfo, dummyLibGroup) ) {
+        tout << "function 'test', call arguments do not match. expecting def test : void\n";
+        return;
+    }
+    // evaluate 'test' function in the context
+    ctx.eval(fnTest, nullptr);
+    if ( auto ex = ctx.getException() ) {       // if function cased panic, report it
+        tout << "exception: " << ex << "\n";
+        return;
+    }
+}
 
-    return _app->shutdown();
-    
+int main( int, char * [] ) {
+    // request all da-script built in modules
+    NEED_ALL_DEFAULT_MODULES;
+    // Initialize modules
+    Module::Initialize();
+    // run the tutorial
+    tutorial();
+    // shut-down daScript, free all memory
+    Module::Shutdown();
     return 0;
 }

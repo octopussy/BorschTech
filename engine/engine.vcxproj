@@ -32,26 +32,26 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
@@ -94,7 +94,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\..\bx\include;..\bx\include\compat\msvc;..\..\..\..\bimg\include;..\..\..\include;..\..\3rdparty;..\..\..\examples\common;..\bx\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\bx\include;..\..\glfw\include;..\bx\include\compat\msvc;..\..\..\..\bimg\include;..\..\..\include;..\..\3rdparty;..\..\..\examples\common;..\bx\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -110,11 +110,12 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <AdditionalIncludeDirectories>..\bx\include;..\bgfx\include;..\..\bx\include\compat\msvc;..\..\..\..\bimg\include;..\..\..\include;..\..\3rdparty;..\..\..\examples\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\daScript\include;..\glfw\include;..\bx\include;..\bgfx\include;..\..\bx\include\compat\msvc;..\..\..\..\bimg\include;..\..\..\include;..\..\3rdparty;..\..\..\examples\common;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>D:\_borsh\tech\daScript\cmake_temp\Debug\libDaScript.lib;D:\_borsh\tech\daScript\cmake_temp\Debug\libUriParser.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -159,26 +160,7 @@
     <ClCompile Include="engine.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\bgfx\.build\projects\vs2017\bgfx.vcxproj">
-      <Project>{6c90947c-58c7-950d-01b4-7b10edc9110f}</Project>
-      <Name>bgfx</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\bgfx\.build\projects\vs2017\bimg.vcxproj">
-      <Project>{c499947c-b0d0-950d-59bd-7b1045d3110f}</Project>
-      <Name>bimg</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\bgfx\.build\projects\vs2017\bimg_decode.vcxproj">
-      <Project>{a7b931ca-136f-aabf-9c63-a4960818a1c3}</Project>
-      <Name>bimg_decode</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\bgfx\.build\projects\vs2017\bx.vcxproj">
-      <Project>{5f775900-4b03-880b-b4b1-880ba05c880b}</Project>
-      <Name>bx</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\bgfx\.build\projects\vs2017\example-common.vcxproj">
-      <Project>{a788128c-9356-0692-7cea-76b86857e2f6}</Project>
-      <Name>example-common</Name>
-    </ProjectReference>
+    <Content Include="tutorial01.das" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
