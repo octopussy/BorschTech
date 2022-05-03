@@ -1,4 +1,4 @@
-[submodule "glfw"]
+﻿[submodule "glfw"]
 	path = glfw
 	url = https://github.com/glfw/glfw
 [submodule "bx"]
@@ -10,6 +10,3 @@
 [submodule "bgfx"]
 	path = bgfx
 	url = https://github.com/bkaradzic/bgfx/
-[submodule "daScript"]
-	path = daScript
-	url = https://github.com/GaijinEntertainment/daScript
