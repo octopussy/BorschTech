@@ -1,4 +1,7 @@
-[submodule "_thirdparty/imgui"]
+[submodule "imgui"]
 	path = _thirdparty/imgui
 	url = https://github.com/octopussy/imgui
 	branch = docking
+[submodule "daScript"]
+	path = _thirdparty/daScript
+	url = https://github.com/octopussy/daScript
