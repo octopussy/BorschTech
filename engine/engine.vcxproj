@@ -160,7 +160,7 @@
     <ClCompile Include="engine.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="tutorial01.das" />
+    <Content Include="engine.das" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

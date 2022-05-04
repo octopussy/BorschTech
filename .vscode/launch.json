@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "enter program name, for example ${workspaceFolder}/a.exe",
+            "program": "${workspaceFolder}/build/Debug/engine.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
@@ -28,7 +28,21 @@
                     "ignoreFailures": true
                 }
             ]
+        },
+        {
+            "type": "dascript",
+            "request": "attach",
+            "program": "${config:dascript.compiler} ${file}",
+            "name": "daScript: Attach",
+            "port": 10723
+        },
+        {
+            "type": "dascript",
+            "request": "launch",
+            "name": "daScript: Launch",
+            "program": "${config:dascript.compiler} ${file}",
+            "port": 10723,
+            "cwd": "${fileDirname}"
         }
-        
     ]
 }
