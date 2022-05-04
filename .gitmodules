@@ -1,3 +1,4 @@
-[submodule "imgui"]
-	path = _thirdparty
+[submodule "_thirdparty/imgui"]
+	path = _thirdparty/imgui
 	url = https://github.com/octopussy/imgui
+	branch = docking
