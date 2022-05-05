@@ -1,7 +1,7 @@
 
-rd /Q /S build
-mkdir build
-cd build
+rd /Q /S _intermediate
+mkdir _intermediate
+cd _intermediate
 
 set CMAKE_GENERATOR=Visual Studio 17 2022
 

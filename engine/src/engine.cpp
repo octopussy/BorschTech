@@ -1,4 +1,5 @@
 #include "daScript/daScript.h"
+#include "entt/entt.hpp"
 
 using namespace das;
 
@@ -26,10 +27,12 @@ REGISTER_MODULE(EngineModule);
 
 #define ENGINE_NAME   "/engine/engine.das"
 
-#include "tutorial.inc"
+#include "../tutorial.inc"
 
-int main( int, char * [] ) {
-    // request all da-script built in modules
+int main( int, char * [] )
+{
+    printf("START!!!");
+    /*// request all da-script built in modules
     NEED_ALL_DEFAULT_MODULES;
     // request our custom module
     NEED_MODULE(EngineModule);
@@ -38,6 +41,6 @@ int main( int, char * [] ) {
     // run the tutorial
     tutorial();
     // shut-down daScript, free all memory
-    Module::Shutdown();
+    Module::Shutdown();*/
     return 0;
 }

@@ -5,29 +5,16 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "(gdb) Launch",
-            "type": "cppdbg",
+            "name": "(Windows) Launch",
+            "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/build/Debug/engine.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
-            "externalConsole": false,
-            "MIMode": "gdb",
-            "miDebuggerPath": "/path/to/gdb",
-            "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description":  "Set Disassembly Flavor to Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
-            ]
+            "console": "externalTerminal",
+            "preLaunchTask": "C/C++: clang++.exe build active file"
         },
         {
             "type": "dascript",
