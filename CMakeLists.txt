@@ -70,7 +70,7 @@ add_executable(engine
         ${IMGUI_DIR}/imgui_tables.cpp
         ${IMGUI_DIR}/imgui_widgets.cpp
 
-        engine/src/main.cpp
+      #  engine/src/main.cpp
         engine/src/imGui.cpp
         engine/src/imgul_vulkan_test.cpp
         engine/src/main.h
