@@ -1,7 +1,7 @@
 #include <cstdio>
 #include "daScript/daScript.h"
 #include "entt/entt.hpp"
-#include "imgui_vulkan_test.h"
+#include "main.h"
 
 using namespace das;
 
@@ -121,16 +121,17 @@ void run_entt() {
 int main(int, char *[]) {
 
     setDasRoot(std::string(PROJECT_ROOT_DIR"/_thirdparty/daScript"));
+
     printf("START!!!\n");
 
     NEED_ALL_DEFAULT_MODULES;
     NEED_MODULE(EngineModule);
     Module::Initialize();
 
-    run_das();
-    run_entt();
+    //run_das();
+    //run_entt();
 
-    imgui_vulkan_test();
+    vulkan_test();
 
 
     Module::Shutdown();

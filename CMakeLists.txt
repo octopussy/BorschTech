@@ -51,6 +51,10 @@ option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
 add_subdirectory(${GLFW_DIR})
 include_directories(${GLFW_DIR}/include)
 
+# GLM
+set(GLM_DIR 3rdparty/glm)
+include_directories(${GLM_DIR})
+
 # imgui
 set(IMGUI_DIR 3rdparty/imgui)
 
@@ -69,7 +73,8 @@ add_executable(engine
         engine/src/main.cpp
         engine/src/imGui.cpp
         engine/src/imgul_vulkan_test.cpp
-        engine/src/imgui_vulkan_test.h)
+        engine/src/main.h
+        engine/src/vulkan_test.cpp)
 
 target_link_libraries(engine
         libDaScript
