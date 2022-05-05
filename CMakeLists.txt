@@ -58,7 +58,6 @@ include(CTest)
 enable_testing()
 
 add_executable(engine
-       # engine/engine.cpp
         # ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
         # ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
         ${IMGUI_DIR}/imgui.cpp
@@ -66,8 +65,11 @@ add_executable(engine
         ${IMGUI_DIR}/imgui_demo.cpp
         ${IMGUI_DIR}/imgui_tables.cpp
         ${IMGUI_DIR}/imgui_widgets.cpp
+
         engine/src/main.cpp
-        engine/src/imGui.cpp)
+        engine/src/imGui.cpp
+        engine/src/imgul_vulkan_test.cpp
+        engine/src/imgui_vulkan_test.h)
 
 target_link_libraries(engine
         libDaScript
@@ -90,7 +92,7 @@ target_compile_features(engine
         )
 
 ADD_DEPENDENCIES(engine daScript)
-#SETUP_CPP11(engine)
+SETUP_CPP11(engine)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})

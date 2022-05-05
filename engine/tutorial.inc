@@ -3,7 +3,7 @@ void tutorial () {
     ModuleGroup dummyLibGroup;                      // module group for compiled program
     auto fAccess = make_smart<FsFileAccess>();      // default file access
     // compile program
-    auto program = compileDaScript(getDasRoot() + ENGINE_NAME, fAccess, tout, dummyLibGroup);
+    auto program = compileDaScript(getDasRoot() + TEST_DAS_NAME, fAccess, tout, dummyLibGroup);
     if ( program->failed() ) {
         // if compilation failed, report errors
         tout << "failed to compile\n";

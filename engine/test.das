@@ -1,10 +1,10 @@
-options debugger
-require daslib/debug
+//options debugger
+//require daslib/debug
 
-require rtti
-require debugapi
+//require rtti
+//require debugapi
 
 [export]
-def main
+def test
     var i = 123
-    print("1234")
+    print("Hello from daScript!!!\n")

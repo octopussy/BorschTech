@@ -17,6 +17,3 @@
 [submodule "glfw"]
 	path = 3rdparty/glfw
 	url = https://github.com/glfw/glfw
-[submodule "entt"]
-	path = _thirdparty/entt
-	url = https://github.com/skypjack/entt
