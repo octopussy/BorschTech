@@ -3,17 +3,8 @@
 	url = https://github.com/octopussy/imgui
 	branch = docking
 [submodule "daScript"]
-	path = _thirdparty/daScript
+	path = 3rdparty/daScript
 	url = https://github.com/octopussy/daScript
-[submodule "bimg"]
-	path = _thirdparty/bimg
-	url = https://github.com/bkaradzic/bimg.git
-[submodule "bx"]
-	path = _thirdparty/bx
-	url = https://github.com/bkaradzic/bx.git
-[submodule "bgfx"]
-	path = _thirdparty/bgfx
-	url = https://github.com/bkaradzic/bgfx.git
 [submodule "glfw"]
 	path = 3rdparty/glfw
 	url = https://github.com/glfw/glfw
