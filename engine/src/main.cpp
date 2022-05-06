@@ -1,7 +1,9 @@
 #include <cstdio>
 #include "daScript/daScript.h"
 #include "entt/entt.hpp"
-#include "main.h"
+//#include "main.h"
+
+void diligent_test();
 
 using namespace das;
 
@@ -118,7 +120,7 @@ void run_entt() {
     update(registry);
 }
 
-int main(int, char *[]) {
+/*int main(int, char *[]) {
 
     setDasRoot(std::string(PROJECT_ROOT_DIR"/_thirdparty/daScript"));
 
@@ -131,12 +133,13 @@ int main(int, char *[]) {
     //run_das();
     //run_entt();
 
-    vulkan_test();
+    //vulkan_test();
 
+    diligent_test();
 
     Module::Shutdown();
 
     return 0;
-}
+}*/
 
 
