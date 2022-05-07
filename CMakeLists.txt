@@ -125,15 +125,14 @@ target_include_directories(engine
         PRIVATE
         "${CMAKE_SOURCE_DIR}/3rdparty"
         "${CMAKE_SOURCE_DIR}/3rdparty/imgui"
-        "${CMAKE_SOURCE_DIR}/DiligentCore/Common/interface"
-        "${CMAKE_SOURCE_DIR}/DiligentCore/Platforms/Basic/interface"
-        "${CMAKE_SOURCE_DIR}/DiligentCore/Graphics/GraphicsTools/interface"
-        "${CMAKE_SOURCE_DIR}/DiligentCore/Graphics/GraphicsEngineD3D11/interface"
-        "${CMAKE_SOURCE_DIR}/DiligentCore/Graphics/GraphicsEngineD3D12/interface"
-        "${CMAKE_SOURCE_DIR}/DiligentCore/Graphics/GraphicsEngineOpenGL/interface"
-        "${CMAKE_SOURCE_DIR}/DiligentCore/Graphics/GraphicsEngineVulkan/interface"
-        "${CMAKE_SOURCE_DIR}/DiligentTools/Graphics/Imgui/interface"
-        # "${CMAKE_SOURCE_DIR}/src"
+        "${THIRD_PARTY_DIR}/DiligentCore/Common/interface"
+        "${THIRD_PARTY_DIR}/DiligentCore/Platforms/Basic/interface"
+        "${THIRD_PARTY_DIR}/DiligentCore/Graphics/GraphicsTools/interface"
+        "${THIRD_PARTY_DIR}/DiligentCore/Graphics/GraphicsEngineD3D11/interface"
+        "${THIRD_PARTY_DIR}/DiligentCore/Graphics/GraphicsEngineD3D12/interface"
+        "${THIRD_PARTY_DIR}/DiligentCore/Graphics/GraphicsEngineOpenGL/interface"
+        "${THIRD_PARTY_DIR}/DiligentCore/Graphics/GraphicsEngineVulkan/interface"
+        "${THIRD_PARTY_DIR}/DiligentTools/Graphics/Imgui/interface"
         )
 
 target_compile_definitions(engine PRIVATE UNICODE _UNICODE)
