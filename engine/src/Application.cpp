@@ -165,7 +165,23 @@ bool Application::Init(HWND hWnd) {
     return true;
 }
 
+void Application::Tick(double CurrTime, double ElapsedTime) {
+    Update(CurrTime, ElapsedTime);
+    Render();
+}
+
 void Application::Render() {
+    PrepareRender();
+
+    DrawCube();
+    DrawTriangle();
+
+    DrawImGui();
+
+    Present();
+}
+
+void Application::PrepareRender() {
     // Set render targets before issuing any draw command.
     // Note that Present() unbinds the back buffer if it is set as render target.
     auto *pRTV = m_pSwapChain->GetCurrentBackBufferRTV();
@@ -177,15 +193,6 @@ void Application::Render() {
     // Let the engine perform required state transitions
     m_pImmediateContext->ClearRenderTarget(pRTV, ClearColor, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
     m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-
-    DrawCube();
-    DrawTriangle();
-
-    // Draw gui
-    const auto &SCDesc = m_pSwapChain->GetDesc();
-    m_pImGui->NewFrame(SCDesc.Width, SCDesc.Height, SCDesc.PreTransform);
-    DrawGui();
-    m_pImGui->Render(m_pImmediateContext);
 }
 
 void Application::CreateResources_Triangle() {
@@ -561,9 +568,14 @@ void Application::CreateIndexBuffer()
     m_pDevice->CreateBuffer(IndBuffDesc, &IBData, &m_CubeIndexBuffer);
 }
 
-void Application::DrawGui() {
+void Application::DrawImGui() {
+    const auto &SCDesc = m_pSwapChain->GetDesc();
+    m_pImGui->NewFrame(SCDesc.Width, SCDesc.Height, SCDesc.PreTransform);
+
     bool showGui = true;
     ImGui::ShowDemoWindow(&showGui);
+
+    m_pImGui->Render(m_pImmediateContext);
 }
 
 void Application::Present() {
@@ -683,10 +695,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int cmdShow) {
             auto CurrTime = Timer.GetElapsedTime();
             auto ElapsedTime = CurrTime - PrevTime;
             PrevTime = CurrTime;
-
-            g_pTheApp->Update(CurrTime, ElapsedTime);
-            g_pTheApp->Render();
-            g_pTheApp->Present();
+            g_pTheApp->Tick(CurrTime, ElapsedTime);
         }
     }
 

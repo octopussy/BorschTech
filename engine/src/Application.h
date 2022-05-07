@@ -76,22 +76,25 @@ namespace bt
         virtual ~Application();
 
         bool Init(HWND hWnd);
-        void CreateResources_Triangle();
-        void CreateResources_Cube();
+        void Tick(double CurrTime, double ElapsedTime);
 
-        void Update(double CurrTime, double ElapsedTime);
-        void Render();
-        void Present();
         void WindowResize(Uint32 Width, Uint32 Height);
 
         virtual LRESULT HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
     private:
+        void Update(double CurrTime, double ElapsedTime);
 
-        void DrawGui();
+        void PrepareRender();
+        void Present();
+        void Render();
 
+        void DrawImGui();
         void DrawTriangle();
         void DrawCube();
+
+        void CreateResources_Triangle();
+        void CreateResources_Cube();
 
         // Cube
         void CreateVertexBuffer();
