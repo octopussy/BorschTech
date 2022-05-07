@@ -1,8 +1,11 @@
 ﻿#include <memory>
 #include <iomanip>
 #include <iostream>
+#include <Windows.h>
 
 #include "Application.h"
+
+#include "ThirdParty/imgui/imgui.h"
 
 using namespace bt;
 
@@ -151,64 +154,69 @@ bool Application::Init(HWND hWnd)
 }
 
 void Application::CreateResources()
+{
+    // Pipeline state object encompasses configuration of all GPU stages
+
+    GraphicsPipelineStateCreateInfo PSOCreateInfo;
+
+    // Pipeline state name is used by the engine to report issues.
+    // It is always a good idea to give objects descriptive names.
+    PSOCreateInfo.PSODesc.Name = "Simple triangle PSO";
+
+    // This is a graphics pipeline
+    PSOCreateInfo.PSODesc.PipelineType = PIPELINE_TYPE_GRAPHICS;
+
+    // clang-format off
+    // This tutorial will render to a single render target
+    PSOCreateInfo.GraphicsPipeline.NumRenderTargets = 1;
+    // Set render target format which is the format of the swap chain's color buffer
+    PSOCreateInfo.GraphicsPipeline.RTVFormats[0] = m_pSwapChain->GetDesc().ColorBufferFormat;
+    // Use the depth buffer format from the swap chain
+    PSOCreateInfo.GraphicsPipeline.DSVFormat = m_pSwapChain->GetDesc().DepthBufferFormat;
+    // Primitive topology defines what kind of primitives will be rendered by this pipeline state
+    PSOCreateInfo.GraphicsPipeline.PrimitiveTopology = PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+    // No back face culling for this tutorial
+    PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode = CULL_MODE_NONE;
+    // Disable depth testing
+    PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = False;
+    // clang-format on
+
+    ShaderCreateInfo ShaderCI;
+    // Tell the system that the shader source code is in HLSL.
+    // For OpenGL, the engine will convert this into GLSL under the hood
+    ShaderCI.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
+    // OpenGL backend requires emulated combined HLSL texture samplers (g_Texture + g_Texture_sampler combination)
+    ShaderCI.UseCombinedTextureSamplers = true;
+    // Create a vertex shader
+    RefCntAutoPtr<IShader> pVS;
     {
-        // Pipeline state object encompasses configuration of all GPU stages
-
-        GraphicsPipelineStateCreateInfo PSOCreateInfo;
-
-        // Pipeline state name is used by the engine to report issues.
-        // It is always a good idea to give objects descriptive names.
-        PSOCreateInfo.PSODesc.Name = "Simple triangle PSO";
-
-        // This is a graphics pipeline
-        PSOCreateInfo.PSODesc.PipelineType = PIPELINE_TYPE_GRAPHICS;
-
-        // clang-format off
-        // This tutorial will render to a single render target
-        PSOCreateInfo.GraphicsPipeline.NumRenderTargets             = 1;
-        // Set render target format which is the format of the swap chain's color buffer
-        PSOCreateInfo.GraphicsPipeline.RTVFormats[0]                = m_pSwapChain->GetDesc().ColorBufferFormat;
-        // Use the depth buffer format from the swap chain
-        PSOCreateInfo.GraphicsPipeline.DSVFormat                    = m_pSwapChain->GetDesc().DepthBufferFormat;
-        // Primitive topology defines what kind of primitives will be rendered by this pipeline state
-        PSOCreateInfo.GraphicsPipeline.PrimitiveTopology            = PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-        // No back face culling for this tutorial
-        PSOCreateInfo.GraphicsPipeline.RasterizerDesc.CullMode      = CULL_MODE_NONE;
-        // Disable depth testing
-        PSOCreateInfo.GraphicsPipeline.DepthStencilDesc.DepthEnable = False;
-        // clang-format on
-
-        ShaderCreateInfo ShaderCI;
-        // Tell the system that the shader source code is in HLSL.
-        // For OpenGL, the engine will convert this into GLSL under the hood
-        ShaderCI.SourceLanguage = SHADER_SOURCE_LANGUAGE_HLSL;
-        // OpenGL backend requires emulated combined HLSL texture samplers (g_Texture + g_Texture_sampler combination)
-        ShaderCI.UseCombinedTextureSamplers = true;
-        // Create a vertex shader
-        RefCntAutoPtr<IShader> pVS;
-        {
-            ShaderCI.Desc.ShaderType = SHADER_TYPE_VERTEX;
-            ShaderCI.EntryPoint      = "main";
-            ShaderCI.Desc.Name       = "Triangle vertex shader";
-            ShaderCI.Source          = VSSource;
-            m_pDevice->CreateShader(ShaderCI, &pVS);
-        }
-
-        // Create a pixel shader
-        RefCntAutoPtr<IShader> pPS;
-        {
-            ShaderCI.Desc.ShaderType = SHADER_TYPE_PIXEL;
-            ShaderCI.EntryPoint      = "main";
-            ShaderCI.Desc.Name       = "Triangle pixel shader";
-            ShaderCI.Source          = PSSource;
-            m_pDevice->CreateShader(ShaderCI, &pPS);
-        }
-
-        // Finally, create the pipeline state
-        PSOCreateInfo.pVS = pVS;
-        PSOCreateInfo.pPS = pPS;
-        m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pPSO);
+        ShaderCI.Desc.ShaderType = SHADER_TYPE_VERTEX;
+        ShaderCI.EntryPoint = "main";
+        ShaderCI.Desc.Name = "Triangle vertex shader";
+        ShaderCI.Source = VSSource;
+        m_pDevice->CreateShader(ShaderCI, &pVS);
     }
+
+    // Create a pixel shader
+    RefCntAutoPtr<IShader> pPS;
+    {
+        ShaderCI.Desc.ShaderType = SHADER_TYPE_PIXEL;
+        ShaderCI.EntryPoint = "main";
+        ShaderCI.Desc.Name = "Triangle pixel shader";
+        ShaderCI.Source = PSSource;
+        m_pDevice->CreateShader(ShaderCI, &pPS);
+    }
+
+    // Finally, create the pipeline state
+    PSOCreateInfo.pVS = pVS;
+    PSOCreateInfo.pPS = pPS;
+    m_pDevice->CreateGraphicsPipelineState(PSOCreateInfo, &m_pPSO);
+}
+
+LRESULT Application::HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
+{
+    return 0l;
+}
 
 std::unique_ptr<Application> g_pTheApp;
 
@@ -284,7 +292,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int cmdShow)
 
     g_pTheApp.reset();
 
-    return (int)msg.wParam;
+    return static_cast<int>(msg.wParam);
 }
 
 void Application::Render()
@@ -312,6 +320,13 @@ void Application::Render()
     m_pImmediateContext->Draw(drawAttrs);
 }
 
+void Application::DrawGui()
+{
+    bool showGui = true;
+    ImGui::ShowDemoWindow(&showGui);
+}
+
+
 void Application::Present()
 {
     m_pSwapChain->Present();
@@ -326,6 +341,13 @@ void Application::WindowResize(Uint32 Width, Uint32 Height)
 // Called every time the NativeNativeAppBase receives a message
 LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    if (g_pTheApp)
+    {
+        auto res = g_pTheApp->HandleWin32Message(wnd, message, wParam, lParam);
+        if (res != 0)
+            return res;
+    }
+
     switch (message)
     {
     case WM_PAINT:

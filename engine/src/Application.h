@@ -39,8 +39,9 @@
 #include "Graphics/GraphicsEngine/interface/SwapChain.h"
 
 #include "Common/interface/RefCntAutoPtr.hpp"
+#include "Imgui/interface/ImGuiImplDiligent.hpp"
 
-using namespace  Diligent;
+using namespace Diligent;
 
 namespace bt
 {
@@ -51,6 +52,8 @@ namespace bt
         RefCntAutoPtr<ISwapChain> m_pSwapChain;
         RefCntAutoPtr<IPipelineState> m_pPSO;
         RENDER_DEVICE_TYPE m_DeviceType = RENDER_DEVICE_TYPE_D3D11;
+
+        std::unique_ptr<ImGuiImplDiligent> m_pImGui;
 
     public:
         Application()
@@ -64,5 +67,11 @@ namespace bt
         void Render();
         void Present();
         void WindowResize(Uint32 Width, Uint32 Height);
+
+        virtual LRESULT HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+
+    private:
+
+        void DrawGui();
     };
 }

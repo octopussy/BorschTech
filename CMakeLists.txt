@@ -71,11 +71,14 @@ enable_testing()
 add_executable(engine WIN32
         # ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
         # ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
-    #    ${IMGUI_DIR}/imgui.cpp
-    #    ${IMGUI_DIR}/imgui_draw.cpp
-    #    ${IMGUI_DIR}/imgui_demo.cpp
-    #    ${IMGUI_DIR}/imgui_tables.cpp
-    #    ${IMGUI_DIR}/imgui_widgets.cpp
+        # ${IMGUI_DIR}/backends/imgui_impl_win32.cpp
+        # ${IMGUI_DIR}/imgui.cpp
+        # ${IMGUI_DIR}/imgui_draw.cpp
+        # ${IMGUI_DIR}/imgui_demo.cpp
+        # ${IMGUI_DIR}/imgui_tables.cpp
+        # ${IMGUI_DIR}/imgui_widgets.cpp
+        # ${IMGUI_DIR}/misc/cpp/imgui_stdlib.cpp
+        
 
         #engine/src/main.cpp
         engine/src/Application.cpp
@@ -103,6 +106,7 @@ target_link_libraries(engine
         Diligent-GraphicsEngineVk-shared
         Diligent-GraphicsTools
         Diligent-RenderStateNotation
+        Diligent-Imgui
 
         DiligentCore/Common/Debug/Diligent-Common
         DiligentCore/Graphics/GraphicsTools/Debug/Diligent-GraphicsTools
@@ -124,6 +128,7 @@ target_include_directories(engine
         "${CMAKE_SOURCE_DIR}/DiligentCore/Graphics/GraphicsEngineD3D12/interface"
         "${CMAKE_SOURCE_DIR}/DiligentCore/Graphics/GraphicsEngineOpenGL/interface"
         "${CMAKE_SOURCE_DIR}/DiligentCore/Graphics/GraphicsEngineVulkan/interface"
+        "${CMAKE_SOURCE_DIR}/DiligentTools/Graphics/Imgui/interface"
         # "${CMAKE_SOURCE_DIR}/src"
         )
 
