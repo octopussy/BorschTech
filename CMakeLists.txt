@@ -47,16 +47,16 @@ add_subdirectory(3rdparty/daScript)
 include_directories(3rdparty/daScript/include)
 
 # GLFW
-set(GLFW_DIR 3rdparty/glfw) # Set this to point to an up-to-date GLFW repo
-set(GLFW_LIBRARIES ${GLFW_DIR}/glfw/lib/glfw3.lib)
-option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
-option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
-option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
-option(GLFW_INSTALL "Generate installation target" OFF)
-option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
+# set(GLFW_DIR 3rdparty/glfw) # Set this to point to an up-to-date GLFW repo
+# set(GLFW_LIBRARIES ${GLFW_DIR}/glfw/lib/glfw3.lib)
+# option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
+# option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
+# option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
+# option(GLFW_INSTALL "Generate installation target" OFF)
+# option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
 #add_subdirectory(${GLFW_DIR} binary_dir EXCLUDE_FROM_ALL)
-add_subdirectory(${GLFW_DIR})
-include_directories(${GLFW_DIR}/include)
+# add_subdirectory(${GLFW_DIR})
+# include_directories(${GLFW_DIR}/include)
 
 # GLM
 set(GLM_DIR 3rdparty/glm)
@@ -69,18 +69,23 @@ include(CTest)
 enable_testing()
 
 add_executable(engine WIN32
-        # ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-        # ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
-        # ${IMGUI_DIR}/backends/imgui_impl_win32.cpp
-        # ${IMGUI_DIR}/imgui.cpp
-        # ${IMGUI_DIR}/imgui_draw.cpp
-        # ${IMGUI_DIR}/imgui_demo.cpp
-        # ${IMGUI_DIR}/imgui_tables.cpp
-        # ${IMGUI_DIR}/imgui_widgets.cpp
-        # ${IMGUI_DIR}/misc/cpp/imgui_stdlib.cpp
+        #${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+        #${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
+        ${IMGUI_DIR}/imgui.cpp
+        ${IMGUI_DIR}/imgui_draw.cpp
+        ${IMGUI_DIR}/imgui_demo.cpp
+        ${IMGUI_DIR}/imgui_tables.cpp
+        ${IMGUI_DIR}/imgui_widgets.cpp
+        ${IMGUI_DIR}/misc/cpp/imgui_stdlib.cpp
+        ${IMGUI_DIR}/backends/imgui_impl_win32.cpp
         
 
         #engine/src/main.cpp
+        engine/src/ImGuiDiligentRenderer.cpp
+        engine/src/ImGuiDiligentRenderer.hpp
+        engine/src/ImGuiImpl.cpp
+        engine/src/ImGuiImpl.hpp
+        engine/src/ImGuiImplWin32.cpp
         engine/src/Application.cpp
         #engine/src/GLFWDemo.cpp
         #engine/src/Game.cpp
@@ -98,7 +103,7 @@ target_link_libraries(engine
         PRIVATE
         libDaScript
         #Vulkan::Vulkan
-        glfw
+        # glfw
         #Threads::Threads
         Diligent-GraphicsEngineD3D11-shared
         Diligent-GraphicsEngineOpenGL-shared
@@ -106,7 +111,7 @@ target_link_libraries(engine
         Diligent-GraphicsEngineVk-shared
         Diligent-GraphicsTools
         Diligent-RenderStateNotation
-        Diligent-Imgui
+       # Diligent-Imgui
 
         DiligentCore/Common/Debug/Diligent-Common
         DiligentCore/Graphics/GraphicsTools/Debug/Diligent-GraphicsTools
@@ -119,10 +124,16 @@ target_link_libraries(engine
 
 copy_required_dlls(engine)
 
+include_directories(
+    "${CMAKE_SOURCE_DIR}/engine/src"
+)
+
 target_include_directories(engine
         PRIVATE
         "${CMAKE_SOURCE_DIR}/3rdparty"
         "${CMAKE_SOURCE_DIR}/3rdparty/imgui"
+        "${CMAKE_SOURCE_DIR}/DiligentCore/Common/interface"
+        "${CMAKE_SOURCE_DIR}/DiligentCore/Platforms/Basic/interface"
         "${CMAKE_SOURCE_DIR}/DiligentCore/Graphics/GraphicsTools/interface"
         "${CMAKE_SOURCE_DIR}/DiligentCore/Graphics/GraphicsEngineD3D11/interface"
         "${CMAKE_SOURCE_DIR}/DiligentCore/Graphics/GraphicsEngineD3D12/interface"
@@ -132,11 +143,14 @@ target_include_directories(engine
         # "${CMAKE_SOURCE_DIR}/src"
         )
 
+target_compile_definitions(engine PRIVATE UNICODE _UNICODE)
 
 target_compile_features(engine
         PRIVATE
         cxx_std_17
         )
+        
+      
 
 ADD_DEPENDENCIES(engine daScript)
 SETUP_CPP11(engine)
