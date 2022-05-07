@@ -5,6 +5,7 @@
 
 #include "Application.h"
 
+#include "ImGuiImplWin32.hpp"
 #include "ThirdParty/imgui/imgui.h"
 
 using namespace bt;
@@ -149,6 +150,10 @@ bool Application::Init(HWND hWnd)
         return false;
         break;
     }
+    
+    // Initialize Dear ImGUI
+    const auto& SC = m_pSwapChain->GetDesc();
+    m_pImGui.reset(new ImGuiImplWin32(hWnd, m_pDevice, SC.ColorBufferFormat, SC.DepthBufferFormat));
 
     return true;
 }
@@ -215,6 +220,12 @@ void Application::CreateResources()
 
 LRESULT Application::HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+    if (m_pImGui)
+    {
+        if (const auto Handled = static_cast<ImGuiImplWin32*>(m_pImGui.get())->Win32_ProcHandler(hWnd, message, wParam, lParam))
+            return Handled;
+    }
+    
     return 0l;
 }
 
@@ -318,6 +329,12 @@ void Application::Render()
     DrawAttribs drawAttrs;
     drawAttrs.NumVertices = 3; // Render 3 vertices
     m_pImmediateContext->Draw(drawAttrs);
+
+    // Draw gui
+    const auto& SCDesc = m_pSwapChain->GetDesc();
+    m_pImGui->NewFrame(SCDesc.Width, SCDesc.Height, SCDesc.PreTransform);
+    DrawGui();
+    m_pImGui->Render(m_pImmediateContext);
 }
 
 void Application::DrawGui()

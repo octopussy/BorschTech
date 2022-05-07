@@ -49,6 +49,7 @@ namespace bt
     {
         RefCntAutoPtr<IRenderDevice> m_pDevice;
         RefCntAutoPtr<IDeviceContext> m_pImmediateContext;
+        //std::vector<RefCntAutoPtr<IDeviceContext>> m_pDeviceContexts;
         RefCntAutoPtr<ISwapChain> m_pSwapChain;
         RefCntAutoPtr<IPipelineState> m_pPSO;
         RENDER_DEVICE_TYPE m_DeviceType = RENDER_DEVICE_TYPE_D3D11;
