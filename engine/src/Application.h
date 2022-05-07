@@ -40,6 +40,7 @@
 
 #include "Common/interface/RefCntAutoPtr.hpp"
 #include "ImGuiImpl.hpp"
+#include "BasicMath.hpp"
 
 using namespace Diligent;
 
@@ -47,14 +48,25 @@ namespace bt
 {
     class Application
     {
-        RefCntAutoPtr<IRenderDevice> m_pDevice;
-        RefCntAutoPtr<IDeviceContext> m_pImmediateContext;
+        RefCntAutoPtr<IRenderDevice>            m_pDevice;
+        RefCntAutoPtr<IDeviceContext>           m_pImmediateContext;
         //std::vector<RefCntAutoPtr<IDeviceContext>> m_pDeviceContexts;
-        RefCntAutoPtr<ISwapChain> m_pSwapChain;
-        RefCntAutoPtr<IPipelineState> m_pPSO;
-        RENDER_DEVICE_TYPE m_DeviceType = RENDER_DEVICE_TYPE_D3D11;
+        RefCntAutoPtr<ISwapChain>               m_pSwapChain;
+        RENDER_DEVICE_TYPE                      m_DeviceType = RENDER_DEVICE_TYPE_VULKAN;
 
-        std::unique_ptr<ImGuiImpl> m_pImGui;
+        // Triangle
+        RefCntAutoPtr<IPipelineState>           m_pPSOTriangle;
+
+        // Cube
+        RefCntAutoPtr<IPipelineState>           m_pPSOCube;
+        RefCntAutoPtr<IEngineFactory>           m_pEngineFactory;
+        RefCntAutoPtr<IShaderResourceBinding>   m_pSRB;
+        RefCntAutoPtr<IBuffer>                  m_CubeVertexBuffer;
+        RefCntAutoPtr<IBuffer>                  m_CubeIndexBuffer;
+        RefCntAutoPtr<IBuffer>                  m_VSConstants;
+        float4x4                                m_WorldViewProjMatrix;
+
+        std::unique_ptr<ImGuiImpl>              m_pImGui;
 
     public:
         Application()
@@ -64,7 +76,10 @@ namespace bt
         virtual ~Application();
 
         bool Init(HWND hWnd);
-        void CreateResources();
+        void CreateResources_Triangle();
+        void CreateResources_Cube();
+
+        void Update(double CurrTime, double ElapsedTime);
         void Render();
         void Present();
         void WindowResize(Uint32 Width, Uint32 Height);
@@ -74,5 +89,15 @@ namespace bt
     private:
 
         void DrawGui();
+
+        void DrawTriangle();
+        void DrawCube();
+
+        // Cube
+        void CreateVertexBuffer();
+        void CreateIndexBuffer();
+
+        float4x4 GetAdjustedProjectionMatrix(float FOV, float NearPlane, float FarPlane) const;
+        float4x4 GetSurfacePretransformMatrix(const float3& f3CameraViewAxis) const;
     };
 }
