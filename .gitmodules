@@ -11,3 +11,9 @@
 [submodule "glm"]
 	path = 3rdparty/glm
 	url = https://github.com/g-truc/glm
+[submodule "DiligentCore"]
+	path = 3rdparty/DiligentCore
+	url = https://github.com/DiligentGraphics/DiligentCore
+[submodule "DiligentTools"]
+	path = 3rdparty/DiligentTools
+	url = https://github.com/DiligentGraphics/DiligentTools

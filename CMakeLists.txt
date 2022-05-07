@@ -5,6 +5,8 @@ project(engine VERSION 0.1.0)
 
 set(CMAKE_CONFIGURATION_TYPES "Release" "Debug")
 
+set(THIRD_PARTY_DIR 3rdparty)
+
 if (MSVC)
     if (USE_MSVC_RUNTIME_LIBRARY_DLL)
         set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
@@ -21,21 +23,11 @@ endif()
 add_definitions(-DSFML_STATIC)
 add_definitions(-DMINFFT_SINGLE)
 
-# Add dascript
-# include(ExternalProject)
-# ExternalProject_Add(
-#     libDaScript
-#     SOURCE_DIR daScript
-#     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/libDaScript
-#     #CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${DAS_SFML_DIR}/libsfml -DCMAKE_OSX_ARCHITECTURES=${CMAKE_OSX_ARCHITECTURES} -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=true
-#     #BINARY_DIR ${DAS_SFML_DIR}/libsfml/build
-# )
-
 # Diligent
-add_subdirectory(DiligentCore)
-include_directories(DiligentCore)
-add_subdirectory(DiligentTools)
-include_directories(DiligentTools)
+add_subdirectory(${THIRD_PARTY_DIR}/DiligentCore)
+add_subdirectory(${THIRD_PARTY_DIR}/DiligentTools)
+include_directories(${THIRD_PARTY_DIR}/DiligentCore)
+include_directories(${THIRD_PARTY_DIR}/DiligentTools)
 #include_directories(DiligentCore/Common/Interface)
 
 # daScript 
@@ -59,11 +51,11 @@ include_directories(3rdparty/daScript/include)
 # include_directories(${GLFW_DIR}/include)
 
 # GLM
-set(GLM_DIR 3rdparty/glm)
+set(GLM_DIR ${THIRD_PARTY_DIR}/glm)
 include_directories(${GLM_DIR})
 
 # imgui
-set(IMGUI_DIR 3rdparty/imgui)
+set(IMGUI_DIR ${THIRD_PARTY_DIR}/imgui)
 
 include(CTest)
 enable_testing()
@@ -113,13 +105,14 @@ target_link_libraries(engine
         Diligent-RenderStateNotation
        # Diligent-Imgui
 
-        DiligentCore/Common/Debug/Diligent-Common
-        DiligentCore/Graphics/GraphicsTools/Debug/Diligent-GraphicsTools
-        DiligentCore/Graphics/GraphicsAccessories/Debug/Diligent-GraphicsAccessories
-        DiligentCore/Primitives/Debug/Diligent-Primitives
-        DiligentCore/Platforms/Win32/Debug/Diligent-Win32Platform
-        DiligentCore/Platforms/Basic/Debug/Diligent-BasicPlatform
-        DiligentTools/RenderStateNotation/Debug/Diligent-RenderStateNotation
+        # do something
+        ${THIRD_PARTY_DIR}/DiligentCore/Common/Debug/Diligent-Common
+        ${THIRD_PARTY_DIR}/DiligentCore/Graphics/GraphicsTools/Debug/Diligent-GraphicsTools
+        ${THIRD_PARTY_DIR}/DiligentCore/Graphics/GraphicsAccessories/Debug/Diligent-GraphicsAccessories
+        ${THIRD_PARTY_DIR}/DiligentCore/Primitives/Debug/Diligent-Primitives
+        ${THIRD_PARTY_DIR}/DiligentCore/Platforms/Win32/Debug/Diligent-Win32Platform
+        ${THIRD_PARTY_DIR}/DiligentCore/Platforms/Basic/Debug/Diligent-BasicPlatform
+        ${THIRD_PARTY_DIR}/DiligentTools/RenderStateNotation/Debug/Diligent-RenderStateNotation
         )
 
 copy_required_dlls(engine)
