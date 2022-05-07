@@ -39,7 +39,7 @@
 #include "Graphics/GraphicsEngine/interface/SwapChain.h"
 
 #include "Common/interface/RefCntAutoPtr.hpp"
-#include "Imgui/interface/ImGuiImplDiligent.hpp"
+#include "ImGuiImpl.hpp"
 
 using namespace Diligent;
 
@@ -54,7 +54,7 @@ namespace bt
         RefCntAutoPtr<IPipelineState> m_pPSO;
         RENDER_DEVICE_TYPE m_DeviceType = RENDER_DEVICE_TYPE_D3D11;
 
-        std::unique_ptr<ImGuiImplDiligent> m_pImGui;
+        std::unique_ptr<ImGuiImpl> m_pImGui;
 
     public:
         Application()
