@@ -7,11 +7,7 @@
 #include "ThirdParty/imgui/imgui.h"
 #include "Timer.hpp"
 #include "MapHelper.hpp"
-
-#include <glm/ext/matrix_float4x4.hpp>
-#include <glm/ext/matrix_transform.hpp> // glm::translate, glm::rotate, glm::scale
-#include <glm/ext/matrix_clip_space.hpp> // glm::perspective
-#include <glm/ext/scalar_constants.hpp> // glm::pi
+#include "BasicMath.hpp"
 
 using namespace bt;
 
@@ -426,7 +422,7 @@ glm::mat4 Application::GetAdjustedProjectionMatrix(float FOV, float NearPlane, f
         XScale = YScale / AspectRatio;
     }
 
-    return glm::perspectiveLH_ZO(FOV, AspectRatio, NearPlane, FarPlane);
+    return glm::perspective(FOV, AspectRatio, NearPlane, FarPlane);
 }
 
 

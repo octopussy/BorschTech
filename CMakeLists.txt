@@ -51,8 +51,9 @@ include_directories(3rdparty/daScript/include)
 # include_directories(${GLFW_DIR}/include)
 
 # GLM
-set(GLM_DIR ${THIRD_PARTY_DIR}/glm)
-include_directories(${GLM_DIR})
+add_subdirectory(${THIRD_PARTY_DIR}/glm)
+# set(GLM_DIR ${THIRD_PARTY_DIR}/glm)
+# include_directories(${GLM_DIR})
 
 # imgui
 set(IMGUI_DIR ${THIRD_PARTY_DIR}/imgui)
@@ -87,12 +88,13 @@ add_executable(engine WIN32
       #  engine/src/vulkan_test.cpp
       #  engine/src/Tutorial01_HelloTriangle.cpp
       #   engine/src/DiligentTest.cpp
-        )
+        engine/src/Core/Math.h)
 
 target_compile_options(engine PRIVATE -DUNICODE -DENGINE_DLL)
 
 target_link_libraries(engine
         PRIVATE
+        glm::glm
         libDaScript
         #Vulkan::Vulkan
         # glfw

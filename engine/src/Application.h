@@ -40,8 +40,7 @@
 
 #include "Common/interface/RefCntAutoPtr.hpp"
 #include "ImGuiImpl.hpp"
-#include "BasicMath.hpp"
-#include "glm/ext/matrix_float4x4.hpp"
+#include "Core/Math.h"
 
 using namespace Diligent;
 
@@ -101,7 +100,7 @@ namespace bt
         void CreateVertexBuffer();
         void CreateIndexBuffer();
 
-        glm::mat4 GetAdjustedProjectionMatrix(float FOV, float NearPlane, float FarPlane) const;
-        glm::mat4 GetSurfacePretransformMatrix(const glm::vec3& f3CameraViewAxis) const;
+        [[nodiscard]] glm::mat4 GetAdjustedProjectionMatrix(float FOV, float NearPlane, float FarPlane) const;
+        [[nodiscard]] glm::mat4 GetSurfacePretransformMatrix(const glm::vec3& f3CameraViewAxis) const;
     };
 }
