@@ -41,6 +41,7 @@
 #include "Common/interface/RefCntAutoPtr.hpp"
 #include "ImGuiImpl.hpp"
 #include "BasicMath.hpp"
+#include "glm/ext/matrix_float4x4.hpp"
 
 using namespace Diligent;
 
@@ -64,7 +65,7 @@ namespace bt
         RefCntAutoPtr<IBuffer>                  m_CubeVertexBuffer;
         RefCntAutoPtr<IBuffer>                  m_CubeIndexBuffer;
         RefCntAutoPtr<IBuffer>                  m_VSConstants;
-        float4x4                                m_WorldViewProjMatrix;
+        glm::mat4                               m_WorldViewProjMatrix;
 
         std::unique_ptr<ImGuiImpl>              m_pImGui;
 
@@ -100,7 +101,7 @@ namespace bt
         void CreateVertexBuffer();
         void CreateIndexBuffer();
 
-        float4x4 GetAdjustedProjectionMatrix(float FOV, float NearPlane, float FarPlane) const;
-        float4x4 GetSurfacePretransformMatrix(const float3& f3CameraViewAxis) const;
+        glm::mat4 GetAdjustedProjectionMatrix(float FOV, float NearPlane, float FarPlane) const;
+        glm::mat4 GetSurfacePretransformMatrix(const glm::vec3& f3CameraViewAxis) const;
     };
 }
