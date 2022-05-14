@@ -1,6 +1,5 @@
 ﻿#include <memory>
 #include <iostream>
-#include <tchar.h>
 
 #include "Application.h"
 
@@ -71,6 +70,9 @@ Application::~Application() {
 }
 
 bool Application::Init(HWND hWnd) {
+
+    GEngine = std::make_unique<Engine>();
+    GEngine->Init("d:/_borsch_project");
 
     gInputManager = std::make_unique<input::InputManager>();
     gInputManager->Init();
@@ -171,12 +173,16 @@ bool Application::Init(HWND hWnd) {
 
     // Initialize Dear ImGUI
     const auto &SC = m_pSwapChain->GetDesc();
-    //m_pImGui = std::make_unique<ImGuiImplWin32>(hWnd, m_pDevice, SC.ColorBufferFormat, SC.DepthBufferFormat);
+    m_pImGui = std::make_unique<ImGuiImplWin32>(hWnd, m_pDevice, SC.ColorBufferFormat, SC.DepthBufferFormat);
 
     CreateResources_Triangle();
     CreateResources_Cube();
 
     return true;
+}
+
+void Application::Shutdown() {
+    GEngine->Shutdown();
 }
 
 void Application::Tick(double CurrTime, double ElapsedTime) {
@@ -191,7 +197,7 @@ void Application::Render() {
     DrawTriangle();
     DrawCube();
 
-    //DrawImGui();
+    DrawImGui();
 
     Present();
 }
@@ -377,14 +383,12 @@ void Application::CreateResources_Cube() {
 }
 
 LRESULT Application::HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
-/*
+
     if (m_pImGui) {
         if (const auto Handled = static_cast<ImGuiImplWin32 *>(m_pImGui.get())->Win32_ProcHandler(hWnd, message, wParam,
                                                                                                   lParam))
             return Handled;
     }
-*/
-
 
     if (message == WM_INPUT) {
         if (gInputManager != nullptr) {
@@ -393,60 +397,6 @@ LRESULT Application::HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, 
     }
 
     return 0l;
-}
-
-glm::mat4 Application::GetSurfacePretransformMatrix(const glm::vec3 &f3CameraViewAxis) const {
-    const auto &SCDesc = m_pSwapChain->GetDesc();
-    const auto PI = glm::pi<float>();
-    switch (SCDesc.PreTransform) {
-        case SURFACE_TRANSFORM_ROTATE_90:
-            // The image content is rotated 90 degrees clockwise.
-            return glm::rotate(glm::mat4(1.0f), -PI / 2.f, f3CameraViewAxis);
-
-        case SURFACE_TRANSFORM_ROTATE_180:
-            // The image content is rotated 180 degrees clockwise.
-            return glm::rotate(glm::mat4(1.0f), -PI, f3CameraViewAxis);
-
-        case SURFACE_TRANSFORM_ROTATE_270:
-            // The image content is rotated 270 degrees clockwise.
-            return glm::rotate(glm::mat4(1.0f), -PI * 3.f / 2.f, f3CameraViewAxis);
-
-        case SURFACE_TRANSFORM_OPTIMAL:
-                    UNEXPECTED(
-                    "SURFACE_TRANSFORM_OPTIMAL is only valid as parameter during swap chain initialization.");
-            return glm::mat4(1.0f);
-
-        case SURFACE_TRANSFORM_HORIZONTAL_MIRROR:
-        case SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90:
-        case SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180:
-        case SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270:
-                    UNEXPECTED("Mirror transforms are not supported");
-            return glm::mat4(1.0f);
-
-        default:
-            return glm::mat4(1.0f);
-    }
-}
-
-glm::mat4 Application::GetAdjustedProjectionMatrix(float FOV, float NearPlane, float FarPlane) const {
-    const auto &SCDesc = m_pSwapChain->GetDesc();
-
-    float AspectRatio = static_cast<float>(SCDesc.Width) / static_cast<float>(SCDesc.Height);
-    float XScale, YScale;
-    if (SCDesc.PreTransform == SURFACE_TRANSFORM_ROTATE_90 ||
-        SCDesc.PreTransform == SURFACE_TRANSFORM_ROTATE_270 ||
-        SCDesc.PreTransform == SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90 ||
-        SCDesc.PreTransform == SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270) {
-        // When the screen is rotated, vertical FOV becomes horizontal FOV
-        XScale = 1.f / std::tan(FOV / 2.f);
-        // Aspect ratio is inversed
-        YScale = XScale * AspectRatio;
-    } else {
-        YScale = 1.f / std::tan(FOV / 2.f);
-        XScale = YScale / AspectRatio;
-    }
-
-    return glm::perspective(FOV, AspectRatio, NearPlane, FarPlane);
 }
 
 static double CubeRotation = 0.f;
@@ -464,18 +414,6 @@ void Application::Update(double CurrTime, double ElapsedTime) {
     mCamera.LookAt(glm::vec3(0.f, 2.0f, -5.0f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.0f, 1.f, 0.f));
     mCubeModelTransform = glm::rotate(glm::mat4(1.0f), static_cast<float>(CubeRotation),
                                       glm::vec3(0.f, 1.f, 0.f));
-
-    /*if (gInputManager->IsKeyJustPressed(bt::input::Key::A)) {
-        bt::log::Debug("A just pressed");
-    }
-
-    if (gInputManager->IsKeyPressed(bt::input::Key::A)) {
-        bt::log::Debug("A pressed");
-    }
-
-    if (gInputManager->IsKeyJustReleased(bt::input::Key::A)) {
-        bt::log::Debug("A just released");
-    }*/
 }
 
 void Application::DrawTriangle() {
@@ -597,12 +535,12 @@ void Application::CreateIndexBuffer() {
 
 void Application::DrawImGui() {
     const auto &SCDesc = m_pSwapChain->GetDesc();
-    // m_pImGui->NewFrame(SCDesc.Width, SCDesc.Height, SCDesc.PreTransform);
+    m_pImGui->NewFrame(SCDesc.Width, SCDesc.Height, SCDesc.PreTransform);
 
     bool showGui = true;
     ImGui::ShowDemoWindow(&showGui);
 
-    // m_pImGui->Render(m_pImmediateContext);
+    m_pImGui->Render(m_pImmediateContext);
 }
 
 void Application::Present() {
@@ -728,6 +666,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int cmdShow) {
             gTheApp->Tick(CurrTime, ElapsedTime);
         }
     }
+
+    gTheApp->Shutdown();
 
     gTheApp.reset();
 

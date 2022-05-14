@@ -35,8 +35,8 @@ set(DAS_BUILD_TUTORIAL NO)
 set(DAS_BUILD_TEST NO)
 set(DAS_BUILD_PROFILE NO)
 set(DAS_GLFW_DISABLED YES)
-add_subdirectory(3rdparty/daScript)
-include_directories(3rdparty/daScript/include)
+add_subdirectory(${THIRD_PARTY_DIR}/daScript)
+include_directories(${THIRD_PARTY_DIR}/daScript/include)
 
 # GLFW
 # set(GLFW_DIR 3rdparty/glfw) # Set this to point to an up-to-date GLFW repo
@@ -62,6 +62,8 @@ include(CTest)
 enable_testing()
 
 add_executable(engine WIN32
+        engine/src/Engine.cpp
+
         #${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
         #${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
         ${IMGUI_DIR}/imgui.cpp
@@ -81,17 +83,8 @@ add_executable(engine WIN32
         engine/src/ImGuiImplWin32.cpp
         engine/src/Application.cpp
         engine/src/Camera.cpp
-        #engine/src/GLFWDemo.cpp
-        #engine/src/Game.cpp
-       # engine/src/imGui.cpp
-        # engine/src/imgul_vulkan_test.cpp
-      #  engine/src/main.h
-      #  engine/src/vulkan_test.cpp
-      #  engine/src/Tutorial01_HelloTriangle.cpp
-      #   engine/src/DiligentTest.cpp
-      #  engine/src/Core/Math.h
-      #  engine/src/Camera.h
-        engine/src/Input/InputManager.cpp engine/src/Core/Logging.cpp)
+        engine/src/Input/InputManager.cpp
+        engine/src/Core/Logging.cpp)
 
 target_compile_options(engine PRIVATE -DUNICODE -DENGINE_DLL)
 
@@ -130,7 +123,6 @@ target_include_directories(engine
         PRIVATE
         "${THIRD_PARTY_DIR}"
         "${THIRD_PARTY_DIR}/imgui"
-       # "${THIRD_PARTY_DIR}/glm"
         "${THIRD_PARTY_DIR}/DiligentCore/Common/interface"
         "${THIRD_PARTY_DIR}/DiligentCore/Platforms/Basic/interface"
         "${THIRD_PARTY_DIR}/DiligentCore/Graphics/GraphicsTools/interface"

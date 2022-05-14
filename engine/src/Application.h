@@ -40,6 +40,8 @@
 
 #include "Common/interface/RefCntAutoPtr.hpp"
 #include "ImGuiImpl.hpp"
+
+#include "Engine.h"
 #include "Core/Math.h"
 #include "Camera.h"
 #include "Input/InputManager.h"
@@ -48,6 +50,7 @@ using namespace Diligent;
 
 namespace bt
 {
+    std::unique_ptr<class Engine> GEngine;
     std::unique_ptr<class Application> gTheApp;
     std::unique_ptr<bt::input::InputManager> gInputManager;
 
@@ -83,6 +86,7 @@ namespace bt
         virtual ~Application();
 
         bool Init(HWND hWnd);
+        void Shutdown();
         void Tick(double CurrTime, double ElapsedTime);
 
         void WindowResize(Uint32 Width, Uint32 Height);
@@ -106,8 +110,5 @@ namespace bt
         // Cube
         void CreateVertexBuffer();
         void CreateIndexBuffer();
-
-        [[nodiscard]] glm::mat4 GetAdjustedProjectionMatrix(float FOV, float NearPlane, float FarPlane) const;
-        [[nodiscard]] glm::mat4 GetSurfacePretransformMatrix(const glm::vec3& f3CameraViewAxis) const;
     };
 }

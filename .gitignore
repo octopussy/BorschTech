@@ -10,3 +10,5 @@ riderModule.iml
 
 /cmake-build-*
 /3rdparty
+
+imgui.ini
