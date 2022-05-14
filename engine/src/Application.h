@@ -42,11 +42,15 @@
 #include "ImGuiImpl.hpp"
 #include "Core/Math.h"
 #include "Camera.h"
+#include "Input/InputManager.h"
 
 using namespace Diligent;
 
 namespace bt
 {
+    std::unique_ptr<class Application> gTheApp;
+    std::unique_ptr<bt::input::InputManager> gInputManager;
+
     class Application
     {
         RefCntAutoPtr<IRenderDevice>            m_pDevice;

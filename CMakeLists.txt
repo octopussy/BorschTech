@@ -91,7 +91,7 @@ add_executable(engine WIN32
       #   engine/src/DiligentTest.cpp
       #  engine/src/Core/Math.h
       #  engine/src/Camera.h
-        engine/src/Input/InputManager.h engine/src/Win32/Win32inputMapper.h engine/src/Core/Logging.h)
+        engine/src/Input/InputManager.cpp engine/src/Core/Logging.cpp)
 
 target_compile_options(engine PRIVATE -DUNICODE -DENGINE_DLL)
 

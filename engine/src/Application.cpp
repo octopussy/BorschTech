@@ -72,6 +72,9 @@ Application::~Application() {
 
 bool Application::Init(HWND hWnd) {
 
+    gInputManager = std::make_unique<input::InputManager>();
+    gInputManager->Init();
+
     bt::log::Debug("===== BorschTech initialized!!! ======");
 
     SwapChainDesc SCDesc;
@@ -88,7 +91,8 @@ bool Application::Init(HWND hWnd) {
             m_pEngineFactory = pFactoryD3D11;
             pFactoryD3D11->CreateDeviceAndContextsD3D11(EngineCI, &m_pDevice, &m_pImmediateContext);
             Win32NativeWindow Window{hWnd};
-            pFactoryD3D11->CreateSwapChainD3D11(m_pDevice, m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window,
+            pFactoryD3D11->CreateSwapChainD3D11(m_pDevice, m_pImmediateContext, SCDesc, FullScreenModeDesc{},
+                                                Window,
                                                 &m_pSwapChain);
         }
             break;
@@ -109,7 +113,8 @@ bool Application::Init(HWND hWnd) {
 
             pFactoryD3D12->CreateDeviceAndContextsD3D12(EngineCI, &m_pDevice, &m_pImmediateContext);
             Win32NativeWindow Window{hWnd};
-            pFactoryD3D12->CreateSwapChainD3D12(m_pDevice, m_pImmediateContext, SCDesc, FullScreenModeDesc{}, Window,
+            pFactoryD3D12->CreateSwapChainD3D12(m_pDevice, m_pImmediateContext, SCDesc, FullScreenModeDesc{},
+                                                Window,
                                                 &m_pSwapChain);
         }
             break;
@@ -166,7 +171,7 @@ bool Application::Init(HWND hWnd) {
 
     // Initialize Dear ImGUI
     const auto &SC = m_pSwapChain->GetDesc();
-    m_pImGui = std::make_unique<ImGuiImplWin32>(hWnd, m_pDevice, SC.ColorBufferFormat, SC.DepthBufferFormat);
+    //m_pImGui = std::make_unique<ImGuiImplWin32>(hWnd, m_pDevice, SC.ColorBufferFormat, SC.DepthBufferFormat);
 
     CreateResources_Triangle();
     CreateResources_Cube();
@@ -175,6 +180,7 @@ bool Application::Init(HWND hWnd) {
 }
 
 void Application::Tick(double CurrTime, double ElapsedTime) {
+    gInputManager->Update();
     Update(CurrTime, ElapsedTime);
     Render();
 }
@@ -185,7 +191,7 @@ void Application::Render() {
     DrawTriangle();
     DrawCube();
 
-    DrawImGui();
+    //DrawImGui();
 
     Present();
 }
@@ -201,7 +207,8 @@ void Application::PrepareRender() {
     const float ClearColor[] = {0.350f, 0.350f, 0.350f, 1.0f};
     // Let the engine perform required state transitions
     m_pImmediateContext->ClearRenderTarget(pRTV, ClearColor, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-    m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0,
+                                           RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
 
 void Application::CreateResources_Triangle() {
@@ -370,10 +377,19 @@ void Application::CreateResources_Cube() {
 }
 
 LRESULT Application::HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
+/*
     if (m_pImGui) {
         if (const auto Handled = static_cast<ImGuiImplWin32 *>(m_pImGui.get())->Win32_ProcHandler(hWnd, message, wParam,
                                                                                                   lParam))
             return Handled;
+    }
+*/
+
+
+    if (message == WM_INPUT) {
+        if (gInputManager != nullptr) {
+            gInputManager->ParseMessage((void *) lParam);
+        }
     }
 
     return 0l;
@@ -433,10 +449,33 @@ glm::mat4 Application::GetAdjustedProjectionMatrix(float FOV, float NearPlane, f
     return glm::perspective(FOV, AspectRatio, NearPlane, FarPlane);
 }
 
+static double CubeRotation = 0.f;
+static double CubeRotationSpeed = 2.f;
 
 void Application::Update(double CurrTime, double ElapsedTime) {
+
+    if (gInputManager->IsKeyPressed(bt::input::Key::A)) {
+        CubeRotation += ElapsedTime * CubeRotationSpeed;
+    }
+    if (gInputManager->IsKeyPressed(bt::input::Key::D)) {
+        CubeRotation -= ElapsedTime * CubeRotationSpeed;
+    }
+
     mCamera.LookAt(glm::vec3(0.f, 2.0f, -5.0f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.0f, 1.f, 0.f));
-    mCubeModelTransform = glm::rotate(glm::mat4(1.0f), static_cast<float>(CurrTime) * 1.0f, glm::vec3(0.f, 1.f, 0.f));
+    mCubeModelTransform = glm::rotate(glm::mat4(1.0f), static_cast<float>(CubeRotation),
+                                      glm::vec3(0.f, 1.f, 0.f));
+
+    /*if (gInputManager->IsKeyJustPressed(bt::input::Key::A)) {
+        bt::log::Debug("A just pressed");
+    }
+
+    if (gInputManager->IsKeyPressed(bt::input::Key::A)) {
+        bt::log::Debug("A pressed");
+    }
+
+    if (gInputManager->IsKeyJustReleased(bt::input::Key::A)) {
+        bt::log::Debug("A just released");
+    }*/
 }
 
 void Application::DrawTriangle() {
@@ -558,12 +597,12 @@ void Application::CreateIndexBuffer() {
 
 void Application::DrawImGui() {
     const auto &SCDesc = m_pSwapChain->GetDesc();
-    m_pImGui->NewFrame(SCDesc.Width, SCDesc.Height, SCDesc.PreTransform);
+    // m_pImGui->NewFrame(SCDesc.Width, SCDesc.Height, SCDesc.PreTransform);
 
     bool showGui = true;
     ImGui::ShowDemoWindow(&showGui);
 
-    m_pImGui->Render(m_pImmediateContext);
+    // m_pImGui->Render(m_pImmediateContext);
 }
 
 void Application::Present() {
@@ -576,13 +615,10 @@ void Application::WindowResize(Uint32 Width, Uint32 Height) {
         m_pSwapChain->Resize(Width, Height);
 }
 
-std::unique_ptr<Application> g_pTheApp;
-std::unique_ptr<bt::input::InputManager> gInputManager;
-
 // Called every time the NativeNativeAppBase receives a message
 LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam) {
-    if (g_pTheApp) {
-        auto res = g_pTheApp->HandleWin32Message(wnd, message, wParam, lParam);
+    if (gTheApp) {
+        auto res = gTheApp->HandleWin32Message(wnd, message, wParam, lParam);
         if (res != 0)
             return res;
     }
@@ -595,8 +631,8 @@ LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lPara
             return 0;
         }
         case WM_SIZE: // Window size has been changed
-            if (g_pTheApp) {
-                g_pTheApp->WindowResize(LOWORD(lParam), HIWORD(lParam));
+            if (gTheApp) {
+                gTheApp->WindowResize(LOWORD(lParam), HIWORD(lParam));
             }
             return 0;
 
@@ -605,9 +641,9 @@ LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lPara
                 PostQuitMessage(0);
             return 0;
 
-        case WM_KEYDOWN:
-            //gInputManager->HandleKeyDown();
-            return 0;
+            /*    case WM_KEYDOWN:
+                    //gInputManager->HandleKeyDown();
+                    return 0;*/
 
         case WM_DESTROY:
             PostQuitMessage(0);
@@ -633,14 +669,14 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int cmdShow) {
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-    g_pTheApp = std::make_unique<Application>();
+    gTheApp = std::make_unique<Application>();
 
     /*const auto* cmdLine = GetCommandLineA();
-    if (!g_pTheApp->ProcessCommandLine(cmdLine))
+    if (!gTheApp->ProcessCommandLine(cmdLine))
         return -1;
 
     std::wstring Title(L"Tutorial00: Hello Win32");
-    switch (g_pTheApp->GetDeviceType())
+    switch (gTheApp->GetDeviceType())
     {
         case RENDER_DEVICE_TYPE_D3D11: Title.append(L" (D3D11)"); break;
         case RENDER_DEVICE_TYPE_D3D12: Title.append(L" (D3D12)"); break;
@@ -673,7 +709,7 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int cmdShow) {
     ShowWindow(wnd, cmdShow);
     UpdateWindow(wnd);
 
-    if (!g_pTheApp->Init(wnd))
+    if (!gTheApp->Init(wnd))
         return -1;
 
     Diligent::Timer Timer;
@@ -689,11 +725,11 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int cmdShow) {
             auto CurrTime = Timer.GetElapsedTime();
             auto ElapsedTime = CurrTime - PrevTime;
             PrevTime = CurrTime;
-            g_pTheApp->Tick(CurrTime, ElapsedTime);
+            gTheApp->Tick(CurrTime, ElapsedTime);
         }
     }
 
-    g_pTheApp.reset();
+    gTheApp.reset();
 
     return static_cast<int>(msg.wParam);
 }
