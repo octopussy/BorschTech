@@ -1,5 +1,6 @@
 ﻿#include <memory>
 #include <iostream>
+#include <tchar.h>
 
 #include "Application.h"
 
@@ -8,6 +9,8 @@
 #include "Timer.hpp"
 #include "MapHelper.hpp"
 #include "BasicMath.hpp"
+#include "Input/InputManager.h"
+#include "Core/Logging.h"
 
 using namespace bt;
 
@@ -62,10 +65,15 @@ void main(in  PSInput  PSIn,
 }
 )";
 
+Application::Application() {}
+
 Application::~Application() {
 }
 
 bool Application::Init(HWND hWnd) {
+
+    bt::log::Debug("===== BorschTech initialized!!! ======");
+
     SwapChainDesc SCDesc;
     switch (m_DeviceType) {
 #if D3D11_SUPPORTED
@@ -427,22 +435,8 @@ glm::mat4 Application::GetAdjustedProjectionMatrix(float FOV, float NearPlane, f
 
 
 void Application::Update(double CurrTime, double ElapsedTime) {
-
-    // Apply rotation
-    const auto rotY = glm::rotate(glm::mat4(1.0f), static_cast<float>(CurrTime) * 1.0f, glm::vec3(0.f, 1.f, 0.f));
-    const auto rotX = glm::rotate(glm::mat4(1.0f), -PI_F * 0.1f, glm::vec3(1.f, 0.f, 0.f));
-
-    glm::mat4 CubeModelTransform = rotX * rotY;
-    glm::mat4 View = glm::translate(glm::mat4(1.f), glm::vec3(0.f, 0.0f, 5.0f));
-
-    // Get pretransform matrix that rotates the scene according the surface orientation
-    auto SrfPreTransform = GetSurfacePretransformMatrix(glm::vec3{0, 0, 1});
-
-    // Get projection matrix adjusted to the current screen orientation
-    auto Proj = GetAdjustedProjectionMatrix(PI_F / 4.0f, 0.1f, 100.f);
-
-    // Compute world-view-projection matrix
-    m_WorldViewProjMatrix = Proj * View * SrfPreTransform * CubeModelTransform;
+    mCamera.LookAt(glm::vec3(0.f, 2.0f, -5.0f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.0f, 1.f, 0.f));
+    mCubeModelTransform = glm::rotate(glm::mat4(1.0f), static_cast<float>(CurrTime) * 1.0f, glm::vec3(0.f, 1.f, 0.f));
 }
 
 void Application::DrawTriangle() {
@@ -461,7 +455,9 @@ void Application::DrawCube() {
     {
         // Map the buffer and write current world-view-projection matrix
         MapHelper<glm::mat4> CBConstants(m_pImmediateContext, m_VSConstants, MAP_WRITE, MAP_FLAG_DISCARD);
-        *CBConstants = glm::transpose(m_WorldViewProjMatrix);//(View * Proj).Transpose();//m_WorldViewProjMatrix.Transpose();
+
+        auto PVW = mCamera.GetProjView() * mCubeModelTransform;
+        *CBConstants = glm::transpose(PVW);//(View * Proj).Transpose();//m_WorldViewProjMatrix.Transpose();
     }
 
     // Bind vertex and index buffers
@@ -575,11 +571,13 @@ void Application::Present() {
 }
 
 void Application::WindowResize(Uint32 Width, Uint32 Height) {
+    mCamera.SetViewPortSize(Width, Height);
     if (m_pSwapChain)
         m_pSwapChain->Resize(Width, Height);
 }
 
 std::unique_ptr<Application> g_pTheApp;
+std::unique_ptr<bt::input::InputManager> gInputManager;
 
 // Called every time the NativeNativeAppBase receives a message
 LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -605,6 +603,10 @@ LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lPara
         case WM_CHAR:
             if (wParam == VK_ESCAPE)
                 PostQuitMessage(0);
+            return 0;
+
+        case WM_KEYDOWN:
+            //gInputManager->HandleKeyDown();
             return 0;
 
         case WM_DESTROY:

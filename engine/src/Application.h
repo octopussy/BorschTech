@@ -41,6 +41,7 @@
 #include "Common/interface/RefCntAutoPtr.hpp"
 #include "ImGuiImpl.hpp"
 #include "Core/Math.h"
+#include "Camera.h"
 
 using namespace Diligent;
 
@@ -52,7 +53,7 @@ namespace bt
         RefCntAutoPtr<IDeviceContext>           m_pImmediateContext;
         //std::vector<RefCntAutoPtr<IDeviceContext>> m_pDeviceContexts;
         RefCntAutoPtr<ISwapChain>               m_pSwapChain;
-        RENDER_DEVICE_TYPE                      m_DeviceType = RENDER_DEVICE_TYPE_VULKAN;
+        RENDER_DEVICE_TYPE                      m_DeviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
 
         // Triangle
         RefCntAutoPtr<IPipelineState>           m_pPSOTriangle;
@@ -64,15 +65,17 @@ namespace bt
         RefCntAutoPtr<IBuffer>                  m_CubeVertexBuffer;
         RefCntAutoPtr<IBuffer>                  m_CubeIndexBuffer;
         RefCntAutoPtr<IBuffer>                  m_VSConstants;
-        glm::mat4                               m_WorldViewProjMatrix;
+
+        glm::mat4                               mCubeModelTransform;
+        //glm::mat4                               m_WorldViewProjMatrix;
 
         std::unique_ptr<ImGuiImpl>              m_pImGui;
 
-    public:
-        Application()
-        {
-        }
+        Camera                                  mCamera;
 
+    public:
+
+        Application();
         virtual ~Application();
 
         bool Init(HWND hWnd);

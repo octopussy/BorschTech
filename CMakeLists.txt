@@ -80,6 +80,7 @@ add_executable(engine WIN32
         engine/src/ImGuiImpl.hpp
         engine/src/ImGuiImplWin32.cpp
         engine/src/Application.cpp
+        engine/src/Camera.cpp
         #engine/src/GLFWDemo.cpp
         #engine/src/Game.cpp
        # engine/src/imGui.cpp
@@ -88,7 +89,9 @@ add_executable(engine WIN32
       #  engine/src/vulkan_test.cpp
       #  engine/src/Tutorial01_HelloTriangle.cpp
       #   engine/src/DiligentTest.cpp
-        engine/src/Core/Math.h)
+      #  engine/src/Core/Math.h
+      #  engine/src/Camera.h
+        engine/src/Input/InputManager.h engine/src/Win32/Win32inputMapper.h engine/src/Core/Logging.h)
 
 target_compile_options(engine PRIVATE -DUNICODE -DENGINE_DLL)
 
@@ -125,8 +128,9 @@ include_directories(
 
 target_include_directories(engine
         PRIVATE
-        "${CMAKE_SOURCE_DIR}/3rdparty"
-        "${CMAKE_SOURCE_DIR}/3rdparty/imgui"
+        "${THIRD_PARTY_DIR}"
+        "${THIRD_PARTY_DIR}/imgui"
+       # "${THIRD_PARTY_DIR}/glm"
         "${THIRD_PARTY_DIR}/DiligentCore/Common/interface"
         "${THIRD_PARTY_DIR}/DiligentCore/Platforms/Basic/interface"
         "${THIRD_PARTY_DIR}/DiligentCore/Graphics/GraphicsTools/interface"
