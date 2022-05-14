@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/DiligentCore" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/DiligentCore/ThirdParty/SPIRV-Cross" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/DiligentCore/ThirdParty/SPIRV-Headers" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/DiligentCore/ThirdParty/SPIRV-Tools" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/DiligentCore/ThirdParty/Vulkan-Headers" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/DiligentCore/ThirdParty/glslang" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/DiligentCore/ThirdParty/googletest" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/DiligentCore/ThirdParty/volk" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/DiligentCore/ThirdParty/xxHash" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/DiligentTools" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/DiligentTools/ThirdParty/args" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/DiligentTools/ThirdParty/imgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript/modules/dasBGFX" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript/modules/dasGlfw" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript/modules/dasHV" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript/modules/dasImgui" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript/modules/dasMinfft" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript/modules/dasSFML" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript/modules/dasSFML/SFML" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript/modules/dasSound" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript/modules/dasSound/miniaudio" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript/modules/dasXbyak" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript/modules/dasXbyak/zydis" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/daScript/modules/dasXbyak/zydis/dependencies/zycore" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/glfw" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/glm" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/3rdparty/imgui" vcs="Git" />
+  </component>
+</project>
