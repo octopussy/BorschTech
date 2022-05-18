@@ -84,7 +84,7 @@ add_executable(engine WIN32
         engine/src/Application.cpp
         engine/src/Camera.cpp
         engine/src/Input/InputManager.cpp
-        engine/src/Core/Logging.cpp)
+        engine/src/core/Logging.cpp engine/src/Scene.h engine/src/Scene.cpp)
 
 target_compile_options(engine PRIVATE -DUNICODE -DENGINE_DLL)
 

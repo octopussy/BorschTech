@@ -97,12 +97,6 @@ namespace bt::input {
 
             auto wasPressed = state.IsPressed;
 
-/*            if (rawkeyboard.Flags == RI_KEY_MAKE) {
-                bt::log::Debug("DOWN " + std::to_string(rawkeyboard.VKey) + " wasPressed=" + std::to_string(wasPressed) + '\n');
-            } else {
-                bt::log::Debug("UP " + std::to_string(rawkeyboard.VKey) + " wasPressed=" + std::to_string(wasPressed) + '\n');
-            }*/
-
             state.IsPressed = rawkeyboard.Flags == RI_KEY_MAKE;
             state.IsJustPressed = !wasPressed;
             state.IsJustReleased = wasPressed && !state.IsPressed;

@@ -91,6 +91,12 @@ namespace bt
         // No need to call ImGui::EndFrame as ImGui::Render calls it automatically
         ImGui::Render();
         m_pRenderer->RenderDrawData(pCtx, ImGui::GetDrawData());
+      // Update and Render additional Platform Windows
+     // if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+      {
+        ImGui::UpdatePlatformWindows();
+        ImGui::RenderPlatformWindowsDefault();
+      }
     }
 
     // Use if you want to reset your rendering device without losing ImGui state.

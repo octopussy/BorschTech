@@ -42,9 +42,9 @@
 #include "ImGuiImpl.hpp"
 
 #include "Engine.h"
-#include "Core/Math.h"
+#include "core/Math.h"
 #include "Camera.h"
-#include "Input/InputManager.h"
+#include "input/InputManager.h"
 
 using namespace Diligent;
 
