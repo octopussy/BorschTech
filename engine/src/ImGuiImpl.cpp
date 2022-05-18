@@ -40,7 +40,9 @@ namespace bt
 {
     using namespace Diligent;
 
-    ImGuiImpl::ImGuiImpl(IRenderDevice* pDevice,
+    ImGuiImpl::ImGuiImpl(
+        void* hwnd,
+        IRenderDevice* pDevice,
                          TEXTURE_FORMAT BackBufferFmt,
                          TEXTURE_FORMAT DepthBufferFmt,
                          Uint32 InitialVertexBufferSize,
@@ -67,7 +69,7 @@ namespace bt
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
         m_pRenderer.reset(
-            new ImGuiDiligentRenderer(pDevice, BackBufferFmt, DepthBufferFmt, InitialVertexBufferSize, InitialIndexBufferSize));
+            new ImGuiDiligentRenderer(hwnd, pDevice, BackBufferFmt, DepthBufferFmt, InitialVertexBufferSize, InitialIndexBufferSize));
     }
 
     ImGuiImpl::~ImGuiImpl()

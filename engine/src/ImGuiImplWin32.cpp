@@ -45,9 +45,9 @@ namespace bt
                                    TEXTURE_FORMAT DepthBufferFmt,
                                    Uint32 InitialVertexBufferSize,
                                    Uint32 InitialIndexBufferSize) :
-        ImGuiImpl{pDevice, BackBufferFmt, DepthBufferFmt, InitialVertexBufferSize, InitialIndexBufferSize}
+        ImGuiImpl{hWnd, pDevice, BackBufferFmt, DepthBufferFmt, InitialVertexBufferSize, InitialIndexBufferSize}
     {
-        ImGui_ImplWin32_Init(hWnd);
+        //ImGui_ImplWin32_Init(hWnd);
     }
 
     ImGuiImplWin32::~ImGuiImplWin32()

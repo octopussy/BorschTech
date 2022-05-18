@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(engine VERSION 0.1.0)
 
-# find_package(Vulkan REQUIRED FATAL_ERROR) # error
+find_package(Vulkan REQUIRED FATAL_ERROR) # error
 
 set(CMAKE_CONFIGURATION_TYPES "Release" "Debug")
 
@@ -39,16 +39,16 @@ add_subdirectory(${THIRD_PARTY_DIR}/daScript)
 include_directories(${THIRD_PARTY_DIR}/daScript/include)
 
 # GLFW
-# set(GLFW_DIR 3rdparty/glfw) # Set this to point to an up-to-date GLFW repo
-# set(GLFW_LIBRARIES ${GLFW_DIR}/glfw/lib/glfw3.lib)
-# option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
-# option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
-# option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
-# option(GLFW_INSTALL "Generate installation target" OFF)
-# option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
+set(GLFW_DIR ${THIRD_PARTY_DIR}/glfw) # Set this to point to an up-to-date GLFW repo
+set(GLFW_LIBRARIES ${GLFW_DIR}/glfw/lib/glfw3.lib)
+option(GLFW_BUILD_EXAMPLES "Build the GLFW example programs" OFF)
+option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
+option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
+option(GLFW_INSTALL "Generate installation target" OFF)
+option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
 #add_subdirectory(${GLFW_DIR} binary_dir EXCLUDE_FROM_ALL)
-# add_subdirectory(${GLFW_DIR})
-# include_directories(${GLFW_DIR}/include)
+add_subdirectory(${GLFW_DIR})
+include_directories(${GLFW_DIR}/include Vulkan::Headers)
 
 # GLM
 add_subdirectory(${THIRD_PARTY_DIR}/glm)
@@ -64,8 +64,8 @@ enable_testing()
 add_executable(engine WIN32
         engine/src/Engine.cpp
 
-        #${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-        #${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
+        ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+        ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
         ${IMGUI_DIR}/imgui.cpp
         ${IMGUI_DIR}/imgui_draw.cpp
         ${IMGUI_DIR}/imgui_demo.cpp
@@ -76,6 +76,7 @@ add_executable(engine WIN32
         
 
         #engine/src/main.cpp
+        engine/src/EditorApp.cpp
         engine/src/ImGuiDiligentRenderer.cpp
         engine/src/ImGuiDiligentRenderer.hpp
         engine/src/ImGuiImpl.cpp
@@ -92,8 +93,8 @@ target_link_libraries(engine
         PRIVATE
         glm::glm
         libDaScript
-        #Vulkan::Vulkan
-        # glfw
+        Vulkan::Vulkan
+        glfw
         #Threads::Threads
         Diligent-GraphicsEngineD3D11-shared
         Diligent-GraphicsEngineOpenGL-shared

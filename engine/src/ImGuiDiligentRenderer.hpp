@@ -58,7 +58,9 @@ namespace bt
     class ImGuiDiligentRenderer
     {
     public:
-        ImGuiDiligentRenderer(IRenderDevice* pDevice,
+        ImGuiDiligentRenderer(
+            void* hwnd,
+            IRenderDevice* pDevice,
                               TEXTURE_FORMAT BackBufferFmt,
                               TEXTURE_FORMAT DepthBufferFmt,
                               Uint32 InitialVertexBufferSize,

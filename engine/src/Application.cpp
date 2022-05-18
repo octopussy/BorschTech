@@ -382,13 +382,17 @@ void Application::CreateResources_Cube() {
   CreateIndexBuffer();
 }
 
+LRESULT BORSCH_ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
 LRESULT Application::HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
-  if (m_pImGui) {
+    if (BORSCH_ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
+        return true;
+  /*if (m_pImGui) {
     if (const auto Handled = static_cast<ImGuiImplWin32 *>(m_pImGui.get())->Win32_ProcHandler(hWnd, message, wParam,
                                                                                               lParam))
       return Handled;
-  }
+  }*/
 
   if (message == WM_INPUT) {
     if (gInputManager != nullptr) {
@@ -523,6 +527,11 @@ void Application::DrawImGui() {
   bool showGui = true;
   ImGui::ShowDemoWindow(&showGui);
 
+  if (ImGui::Begin("Test")){
+      //ImGui::GetWindowDrawList()->AddImage();
+      ImGui::End();
+  }
+
   m_pImGui->Render(m_pImmediateContext);
 }
 
@@ -585,10 +594,14 @@ LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lPara
 
 LRESULT CALLBACK MessageProc(HWND, UINT, WPARAM, LPARAM);
 
+int run_vulkan_imgui_test();
+
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int cmdShow) {
 #if defined(_DEBUG) || defined(DEBUG)
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
+
+  return run_vulkan_imgui_test();
 
   gTheApp = std::make_unique<Application>();
 
@@ -610,8 +623,8 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int cmdShow) {
 
   // Register our window class
   WNDCLASSEX wcex = {
-    sizeof(WNDCLASSEX), CS_HREDRAW | CS_VREDRAW, MessageProc,
-    0L, 0L, instance, nullptr, nullptr, nullptr, nullptr, WindowClass.c_str(), nullptr
+    sizeof(WNDCLASSEX), CS_CLASSDC, MessageProc,
+    0L, 0L, GetModuleHandle(NULL), nullptr, nullptr, nullptr, nullptr, WindowClass.c_str(), nullptr
   };
   RegisterClassEx(&wcex);
 
@@ -622,12 +635,12 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int cmdShow) {
   AdjustWindowRect(&Rc, WS_OVERLAPPEDWINDOW, FALSE);
   HWND wnd = CreateWindow(WindowClass.c_str(), WindowTitle.c_str(),
                           WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT,
-                          Rc.right - Rc.left, Rc.bottom - Rc.top, NULL, NULL, instance, NULL);
+                          Rc.right - Rc.left, Rc.bottom - Rc.top, NULL, NULL, wcex.hInstance, NULL);
   if (!wnd) {
     MessageBox(NULL, L"Cannot create window", L"Error", MB_OK | MB_ICONERROR);
     return 0;
   }
-  ShowWindow(wnd, cmdShow);
+  ShowWindow(wnd, SW_SHOWDEFAULT);
   UpdateWindow(wnd);
 
   if (!gTheApp->Init(wnd))

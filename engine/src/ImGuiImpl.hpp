@@ -51,7 +51,9 @@ namespace bt
         static constexpr Uint32 DefaultInitialVBSize = 1024;
         static constexpr Uint32 DefaultInitialIBSize = 2048;
 
-        ImGuiImpl(IRenderDevice* pDevice,
+        ImGuiImpl(
+            void* hwnd,
+            IRenderDevice* pDevice,
                   TEXTURE_FORMAT BackBufferFmt,
                   TEXTURE_FORMAT DepthBufferFmt,
                   Uint32 InitialVertexBufferSize = DefaultInitialVBSize,
