@@ -3,6 +3,7 @@
 #ifndef NOMINMAX
 #    define NOMINMAX
 #endif
+
 #include <Windows.h>
 
 #ifndef PLATFORM_WIN32
@@ -34,9 +35,9 @@
 #include "Graphics/GraphicsEngineOpenGL/interface/EngineFactoryOpenGL.h"
 #include "Graphics/GraphicsEngineVulkan/interface/EngineFactoryVk.h"
 
-#include "Graphics/GraphicsEngine/interface/RenderDevice.h"
-#include "Graphics/GraphicsEngine/interface/DeviceContext.h"
-#include "Graphics/GraphicsEngine/interface/SwapChain.h"
+#include "RenderDevice.h"
+#include "DeviceContext.h"
+#include "SwapChain.h"
 
 #include "Common/interface/RefCntAutoPtr.hpp"
 #include "ImGuiImpl.hpp"
@@ -48,67 +49,62 @@
 
 using namespace Diligent;
 
-namespace bt
-{
-    std::unique_ptr<class Engine> GEngine;
-    std::unique_ptr<class Application> gTheApp;
-    std::unique_ptr<bt::input::InputManager> gInputManager;
+namespace bt {
 
-    class Application
-    {
-        RefCntAutoPtr<IRenderDevice>            m_pDevice;
-        RefCntAutoPtr<IDeviceContext>           m_pImmediateContext;
-        //std::vector<RefCntAutoPtr<IDeviceContext>> m_pDeviceContexts;
-        RefCntAutoPtr<ISwapChain>               m_pSwapChain;
-        RENDER_DEVICE_TYPE                      m_DeviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
+extern std::unique_ptr<Engine> GEngine;
+extern std::unique_ptr<class Application> gTheApp;
+extern std::unique_ptr<bt::input::InputManager> gInputManager;
 
-        // Triangle
-        RefCntAutoPtr<IPipelineState>           m_pPSOTriangle;
 
-        // Cube
-        RefCntAutoPtr<IPipelineState>           m_pPSOCube;
-        RefCntAutoPtr<IEngineFactory>           m_pEngineFactory;
-        RefCntAutoPtr<IShaderResourceBinding>   m_pSRB;
-        RefCntAutoPtr<IBuffer>                  m_CubeVertexBuffer;
-        RefCntAutoPtr<IBuffer>                  m_CubeIndexBuffer;
-        RefCntAutoPtr<IBuffer>                  m_VSConstants;
+class TestCube;
 
-        glm::mat4                               mCubeModelTransform;
-        //glm::mat4                               m_WorldViewProjMatrix;
+class Application {
+    RefCntAutoPtr<IEngineFactory>   m_pEngineFactory;
+    RefCntAutoPtr<IRenderDevice>    m_pDevice;
+    RefCntAutoPtr<IDeviceContext>   m_pImmediateContext;
+    //std::vector<RefCntAutoPtr<IDeviceContext>> m_pDeviceContexts;
+    RefCntAutoPtr<ISwapChain>       m_pSwapChain;
+    RENDER_DEVICE_TYPE m_DeviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
 
-        std::unique_ptr<ImGuiImpl>              m_pImGui;
+    std::unique_ptr<ImGuiImpl> m_pImGui;
 
-        Camera                                  mCamera;
+    Camera mCamera;
 
-    public:
+  public:
 
-        Application();
-        virtual ~Application();
+    IEngineFactory* GetEngineFactory() { return m_pEngineFactory.RawPtr(); }
+    IRenderDevice* GetRenderDevice() { return m_pDevice.RawPtr(); }
+    ISwapChain* GetSwapChain() { return m_pSwapChain.RawPtr(); }
+    IDeviceContext* GetImmediateContext() { return m_pImmediateContext.RawPtr(); }
 
-        bool Init(HWND hWnd);
-        void Shutdown();
-        void Tick(double CurrTime, double ElapsedTime);
+    Application();
 
-        void WindowResize(Uint32 Width, Uint32 Height);
+    virtual ~Application();
 
-        virtual LRESULT HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+    bool Init(HWND hWnd);
 
-    private:
-        void Update(double CurrTime, double ElapsedTime);
+    void Shutdown();
 
-        void PrepareRender();
-        void Present();
-        void Render();
+    void Tick(double CurrTime, double ElapsedTime);
 
-        void DrawImGui();
-        void DrawTriangle();
-        void DrawCube();
+    void WindowResize(Uint32 Width, Uint32 Height);
 
-        void CreateResources_Triangle();
-        void CreateResources_Cube();
+    virtual LRESULT HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-        // Cube
-        void CreateVertexBuffer();
-        void CreateIndexBuffer();
-    };
+  private:
+    void Update(double CurrTime, double ElapsedTime);
+
+    void PrepareRender();
+
+    void Present();
+
+    void Render();
+
+    void DrawImGui();
+
+  private:
+
+    std::unique_ptr<TestCube> mCube;
+};
+
 }
