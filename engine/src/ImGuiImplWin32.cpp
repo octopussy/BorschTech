@@ -47,7 +47,7 @@ namespace bt
                                    Uint32 InitialIndexBufferSize) :
         ImGuiImpl{hWnd, pDevice, BackBufferFmt, DepthBufferFmt, InitialVertexBufferSize, InitialIndexBufferSize}
     {
-        //ImGui_ImplWin32_Init(hWnd);
+        ImGui_ImplWin32_Init(hWnd);
     }
 
     ImGuiImplWin32::~ImGuiImplWin32()
