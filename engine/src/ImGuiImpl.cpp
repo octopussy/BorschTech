@@ -26,6 +26,7 @@
  */
 
 #include <cstddef>
+#include <memory>
 #include "imgui.h"
 #include "ImGuiImpl.hpp"
 #include "ImGuiDiligentRenderer.hpp"
@@ -68,8 +69,8 @@ namespace bt
             style.WindowRounding = 0.0f;
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
-        m_pRenderer.reset(
-            new ImGuiDiligentRenderer(hwnd, pDevice, BackBufferFmt, DepthBufferFmt, InitialVertexBufferSize, InitialIndexBufferSize));
+        m_pRenderer = std::make_unique<ImGuiDiligentRenderer>(
+            hwnd, pDevice, BackBufferFmt, DepthBufferFmt, InitialVertexBufferSize, InitialIndexBufferSize);
     }
 
     ImGuiImpl::~ImGuiImpl()

@@ -386,10 +386,14 @@ ImGuiDiligentRenderer::ImGuiDiligentRenderer(
     IO.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;         // We can honor GetMouseCursor() values (optional)
     IO.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;          // We can honor io.WantSetMousePos requests (optional, rarely used)
     IO.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;    // We can create multi-viewports on the Platform side (optional)
+    IO.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;  // We can create multi-viewports on the Renderer side (optional)
     IO.BackendFlags |= ImGuiBackendFlags_HasMouseHoveredViewport; // We can call io.AddMouseViewportEvent() with correct data (optional)
     if (m_BaseVertexSupported)
         IO.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;
     // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
+
+    ImGuiIO& io = ImGui::GetIO();
+    IM_ASSERT(io.BackendRendererUserData == NULL && "Already initialized a renderer backend!");
 
     bd->hWnd = (HWND) hwnd;
     bd->WantUpdateHasGamepad = true;

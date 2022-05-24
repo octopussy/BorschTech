@@ -182,13 +182,11 @@ LRESULT BORSCH_ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam
 
 LRESULT Application::HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
-    if (BORSCH_ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
-        return true;
-    /*if (m_pImGui) {
+    if (m_pImGui) {
       if (const auto Handled = static_cast<ImGuiImplWin32 *>(m_pImGui.get())->Win32_ProcHandler(hWnd, message, wParam,
                                                                                                 lParam))
         return Handled;
-    }*/
+    }
 
     if (message == WM_INPUT) {
         if (gInputManager != nullptr) {

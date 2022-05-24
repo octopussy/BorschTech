@@ -78,6 +78,8 @@ namespace bt
     private:
         inline float4 TransformClipRect(const ImVec2& DisplaySize, const float4& rect) const;
 
+        void InitPlatformInterface();
+
     private:
         RefCntAutoPtr<IRenderDevice> m_pDevice;
         RefCntAutoPtr<IBuffer> m_pVB;
