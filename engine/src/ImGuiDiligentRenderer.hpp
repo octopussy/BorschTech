@@ -56,6 +56,19 @@ namespace bt {
 
 using namespace Diligent;
 
+struct BorschDiligentViewportData {
+  RefCntAutoPtr<ISwapChain> pSwapChain;
+  RefCntAutoPtr<IBuffer> m_pVB;
+  RefCntAutoPtr<IBuffer> m_pIB;
+  Uint32 m_VertexBufferSize = 0;
+  Uint32 m_IndexBufferSize = 0;
+
+  BorschDiligentViewportData() :
+      m_VertexBufferSize{1024},
+      m_IndexBufferSize{1024} {}
+
+};
+
 class ImGuiDiligentRenderer {
   public:
     ImGuiDiligentRenderer(
@@ -86,6 +99,8 @@ class ImGuiDiligentRenderer {
 
   private:
 
+    void CreateMainViewport();
+
   public:
     RefCntAutoPtr<IRenderDevice> m_pDevice;
     RefCntAutoPtr<IShaderResourceBinding> m_pSRB;
@@ -95,6 +110,8 @@ class ImGuiDiligentRenderer {
 
     RefCntAutoPtr<IPipelineState> m_pPSO;
   private:
+
+    BorschDiligentViewportData pMainViewportData;
 
     RefCntAutoPtr<IBuffer> m_pVB;
     RefCntAutoPtr<IBuffer> m_pIB;

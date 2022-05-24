@@ -73,57 +73,8 @@ using namespace Diligent;
 
 class bt::ImGuiDiligentRenderer *RENDERER;
 
-// Helper structure we store in the void* RenderUserData field of each ImGuiViewport to easily retrieve our backend data.
-struct ImGui_ImplWin32_ViewportData {
-  HWND Hwnd;
-  bool HwndOwned;
-  DWORD DwStyle;
-  DWORD DwExStyle;
-
-  ImGui_ImplWin32_ViewportData() {
-      Hwnd = NULL;
-      HwndOwned = false;
-      DwStyle = DwExStyle = 0;
-  }
-
-  ~ImGui_ImplWin32_ViewportData() { IM_ASSERT(Hwnd == NULL); }
-};
-
-struct ImGui_ImplWin32_Data {
-  HWND hWnd;
-  HWND MouseHwnd;
-  bool MouseTracked;
-  int MouseButtonsDown;
-  INT64 Time;
-  INT64 TicksPerSecond;
-  ImGuiMouseCursor LastMouseCursor;
-  bool HasGamepad;
-  bool WantUpdateHasGamepad;
-  bool WantUpdateMonitors;
-
-#ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
-  HMODULE XInputDLL;
-  PFN_XInputGetCapabilities XInputGetCapabilities;
-  PFN_XInputGetState XInputGetState;
-#endif
-
-  ImGui_ImplWin32_Data() { memset((void *) this, 0, sizeof(*this)); }
-};
-
 struct BorschDiligentRenderData {
-};
-
-struct BorschDiligentViewportData {
-  RefCntAutoPtr<ISwapChain> pSwapChain;
-  RefCntAutoPtr<IBuffer> m_pVB;
-  RefCntAutoPtr<IBuffer> m_pIB;
-  Uint32 m_VertexBufferSize = 0;
-  Uint32 m_IndexBufferSize = 0;
-
-  BorschDiligentViewportData() :
-      m_VertexBufferSize{1024},
-      m_IndexBufferSize{1024} {}
-
+  bt::ImGuiDiligentRenderer* Renderer;
 };
 
 static void InitPlatformInterface();
@@ -416,9 +367,10 @@ ImGuiDiligentRenderer::ImGuiDiligentRenderer(
     // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
 
     ImGuiIO &io = ImGui::GetIO();
-    IM_ASSERT(io.BackendRendererUserData == NULL && "Already initialized a renderer backend!");
+    IM_ASSERT(io.BackendRendererUserData == nullptr && "Already initialized a renderer backend!");
 
     BorschDiligentRenderData *bd = IM_NEW(BorschDiligentRenderData)();
+    bd->Renderer = this;
     IO.BackendRendererUserData = (void *) bd;
     IO.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;  // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
     IO.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;  // We can create multi-viewports on the Renderer side (optional)
@@ -427,6 +379,7 @@ ImGuiDiligentRenderer::ImGuiDiligentRenderer(
         InitPlatformInterface();
 
     CreateDeviceObjects();
+    CreateMainViewport();
 }
 
 ImGuiDiligentRenderer::~ImGuiDiligentRenderer() {
@@ -592,6 +545,10 @@ void ImGuiDiligentRenderer::CreateDeviceObjects() {
     m_pPSO->GetStaticVariableByName(SHADER_TYPE_VERTEX, "Constants")->Set(m_pVertexConstantBuffer);
 
     CreateFontsTexture();
+}
+
+void ImGuiDiligentRenderer::CreateMainViewport() {
+    pMainViewportData.pSwapChain = gTheApp->GetSwapChain();
 }
 
 void ImGuiDiligentRenderer::CreateFontsTexture() {
@@ -958,6 +915,10 @@ static void BorschRenderDrawData(BorschDiligentViewportData *viewportData,
 
 
 void ImGuiDiligentRenderer::RenderDrawData(IDeviceContext *pCtx, ImDrawData *pDrawData) {
+
+    BorschRenderDrawData(&pMainViewportData, pDrawData);
+    return;
+
     // Avoid rendering when minimized
     if (pDrawData->DisplaySize.x <= 0.0f || pDrawData->DisplaySize.y <= 0.0f)
         return;
@@ -1178,7 +1139,7 @@ static void Diligent_CreateWindow(ImGuiViewport *viewport) {
     IM_ASSERT(hwnd != 0);
 
     BorschDiligentRenderData *bd = ImGui_ImplDX12_GetBackendData();
-    auto *vd = IM_NEW(BorschDiligentViewportData)(/*bd->numFramesInFlight*/);
+    auto *vd = IM_NEW(bt::BorschDiligentViewportData)(/*bd->numFramesInFlight*/);
     viewport->RendererUserData = vd;
 
     bt::gTheApp->CreateSwapChain(vd->pSwapChain, hwnd, true);
@@ -1194,19 +1155,19 @@ static void ImGui_ImplDX12_DestroyWindow(ImGuiViewport *viewport) {
 
 static void ImGui_ImplDX12_SetWindowSize(ImGuiViewport *viewport, ImVec2 size) {
     BorschDiligentRenderData *bd = ImGui_ImplDX12_GetBackendData();
-    auto vd = (BorschDiligentViewportData *) viewport->RendererUserData;
+    auto vd = (bt::BorschDiligentViewportData *) viewport->RendererUserData;
     if (vd->pSwapChain) {
         vd->pSwapChain->Resize(size.x, size.y);
     }
 }
 
 static void ImGui_ImplDX12_RenderWindow(ImGuiViewport *viewport, void *) {
-    auto vd = (BorschDiligentViewportData *) viewport->RendererUserData;
+    auto vd = (bt::BorschDiligentViewportData *) viewport->RendererUserData;
     bt::BorschRenderDrawData(vd, viewport->DrawData);
 }
 
 static void ImGui_ImplDX12_SwapBuffers(ImGuiViewport *viewport, void *) {
-    auto *vd = (BorschDiligentViewportData *) viewport->RendererUserData;
+    auto *vd = (bt::BorschDiligentViewportData *) viewport->RendererUserData;
     vd->pSwapChain->Present();
 }
 
