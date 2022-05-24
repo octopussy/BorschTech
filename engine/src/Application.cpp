@@ -38,6 +38,22 @@ bool Application::Init(HWND hWnd) {
 
     bt::log::Debug("===== BorschTech initialized!!! ======");
 
+    CreateSwapChain(m_pSwapChain, hWnd, false);
+
+    // Initialize Dear ImGUI
+    const auto &SC = m_pSwapChain->GetDesc();
+    m_pImGui = std::make_unique<ImGuiImplWin32>(hWnd, m_pDevice, SC.ColorBufferFormat, SC.DepthBufferFormat);
+
+    mCube = std::make_unique<TestCube>();
+    mCube2 = std::make_unique<TestCube>();
+
+    mCube->SetLocation(glm::vec3(1.f, 0.f, 0.f));
+    mCube2->SetLocation(glm::vec3(-1.f, 0.f, 0.f));
+
+    return true;
+}
+
+bool Application::CreateSwapChain(RefCntAutoPtr<ISwapChain> &result, HWND hWnd, bool isAdditional) {
     SwapChainDesc SCDesc;
     switch (m_DeviceType) {
 #if D3D11_SUPPORTED
@@ -54,7 +70,7 @@ bool Application::Init(HWND hWnd) {
             Win32NativeWindow Window{hWnd};
             pFactoryD3D11->CreateSwapChainD3D11(m_pDevice, m_pImmediateContext, SCDesc, FullScreenModeDesc{},
                                                 Window,
-                                                &m_pSwapChain);
+                                                &result);
         }
             break;
 #endif
@@ -129,17 +145,7 @@ bool Application::Init(HWND hWnd) {
             break;
     }
 
-    // Initialize Dear ImGUI
-    const auto &SC = m_pSwapChain->GetDesc();
-    m_pImGui = std::make_unique<ImGuiImplWin32>(hWnd, m_pDevice, SC.ColorBufferFormat, SC.DepthBufferFormat);
-
-    mCube = std::make_unique<TestCube>();
-    mCube2 = std::make_unique<TestCube>();
-
-    mCube->SetLocation(glm::vec3(1.f, 0.f, 0.f));
-    mCube2->SetLocation(glm::vec3(-1.f, 0.f, 0.f));
-
-    return true;
+    return m_pSwapChain != nullptr;
 }
 
 void Application::Shutdown() {
@@ -183,9 +189,9 @@ LRESULT BORSCH_ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam
 LRESULT Application::HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
     if (m_pImGui) {
-      if (const auto Handled = static_cast<ImGuiImplWin32 *>(m_pImGui.get())->Win32_ProcHandler(hWnd, message, wParam,
-                                                                                                lParam))
-        return Handled;
+        if (const auto Handled = static_cast<ImGuiImplWin32 *>(m_pImGui.get())->Win32_ProcHandler(hWnd, message, wParam,
+                                                                                                  lParam))
+            return Handled;
     }
 
     if (message == WM_INPUT) {
