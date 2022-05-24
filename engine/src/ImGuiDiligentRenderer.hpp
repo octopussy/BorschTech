@@ -82,20 +82,27 @@ class ImGuiDiligentRenderer {
 
     void CreateFontsTexture();
 
-  private:
     inline float4 TransformClipRect(const ImVec2 &DisplaySize, const float4 &rect) const;
+
+  private:
 
     void InitPlatformInterface();
 
   private:
+
+  public:
     RefCntAutoPtr<IRenderDevice> m_pDevice;
-    RefCntAutoPtr<IBuffer> m_pVB;
-    RefCntAutoPtr<IBuffer> m_pIB;
-    RefCntAutoPtr<IBuffer> m_pVertexConstantBuffer;
-    RefCntAutoPtr<IPipelineState> m_pPSO;
-    RefCntAutoPtr<ITextureView> m_pFontSRV;
     RefCntAutoPtr<IShaderResourceBinding> m_pSRB;
     IShaderResourceVariable *m_pTextureVar = nullptr;
+    bool m_BaseVertexSupported = false;
+    RefCntAutoPtr<IBuffer> m_pVertexConstantBuffer;
+
+    RefCntAutoPtr<IPipelineState> m_pPSO;
+  private:
+
+    RefCntAutoPtr<IBuffer> m_pVB;
+    RefCntAutoPtr<IBuffer> m_pIB;
+    RefCntAutoPtr<ITextureView> m_pFontSRV;
 
     const TEXTURE_FORMAT m_BackBufferFmt;
     const TEXTURE_FORMAT m_DepthBufferFmt;
@@ -104,6 +111,5 @@ class ImGuiDiligentRenderer {
     Uint32 m_RenderSurfaceWidth = 0;
     Uint32 m_RenderSurfaceHeight = 0;
     SURFACE_TRANSFORM m_SurfacePreTransform = SURFACE_TRANSFORM_IDENTITY;
-    bool m_BaseVertexSupported = false;
 };
 } // namespace Diligent
