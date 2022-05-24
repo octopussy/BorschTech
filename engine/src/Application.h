@@ -59,19 +59,7 @@ extern std::unique_ptr<bt::input::InputManager> gInputManager;
 class TestCube;
 
 class Application {
-    RefCntAutoPtr<IEngineFactory>   m_pEngineFactory;
-    RefCntAutoPtr<IRenderDevice>    m_pDevice;
-    RefCntAutoPtr<IDeviceContext>   m_pImmediateContext;
-    //std::vector<RefCntAutoPtr<IDeviceContext>> m_pDeviceContexts;
-    RefCntAutoPtr<ISwapChain>       m_pSwapChain;
-    RENDER_DEVICE_TYPE m_DeviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
-
-    std::unique_ptr<ImGuiImpl> m_pImGui;
-
-    Camera mCamera;
-
   public:
-
     IEngineFactory* GetEngineFactory() { return m_pEngineFactory.RawPtr(); }
     IRenderDevice* GetRenderDevice() { return m_pDevice.RawPtr(); }
     ISwapChain* GetSwapChain() { return m_pSwapChain.RawPtr(); }
@@ -103,6 +91,17 @@ class Application {
     void DrawImGui();
 
   private:
+
+    RefCntAutoPtr<IEngineFactory>   m_pEngineFactory;
+    RefCntAutoPtr<IRenderDevice>    m_pDevice;
+    RefCntAutoPtr<IDeviceContext>   m_pImmediateContext;
+    //std::vector<RefCntAutoPtr<IDeviceContext>> m_pDeviceContexts;
+    RefCntAutoPtr<ISwapChain>       m_pSwapChain;
+    RENDER_DEVICE_TYPE m_DeviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
+
+    std::unique_ptr<ImGuiImpl> m_pImGui;
+
+    Camera mCamera;
 
     std::unique_ptr<TestCube> mCube;
     std::unique_ptr<TestCube> mCube2;

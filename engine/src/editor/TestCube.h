@@ -37,7 +37,6 @@ class TestCube {
 
     // Cube
     RefCntAutoPtr<IPipelineState> m_pPSOCube;
-    RefCntAutoPtr<IEngineFactory> m_pEngineFactory;
     RefCntAutoPtr<IShaderResourceBinding> m_pSRB;
     RefCntAutoPtr<IBuffer> m_CubeVertexBuffer;
     RefCntAutoPtr<IBuffer> m_CubeIndexBuffer;
