@@ -105,6 +105,7 @@ class Application {
   private:
 
     std::unique_ptr<TestCube> mCube;
+    std::unique_ptr<TestCube> mCube2;
 };
 
 }

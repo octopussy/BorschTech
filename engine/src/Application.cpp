@@ -187,6 +187,10 @@ bool Application::Init(HWND hWnd) {
     m_pImGui = std::make_unique<ImGuiImplWin32>(hWnd, m_pDevice, SC.ColorBufferFormat, SC.DepthBufferFormat);
 
     mCube = std::make_unique<TestCube>();
+    mCube2 = std::make_unique<TestCube>();
+
+    mCube->SetLocation(glm::vec3(1.f, 0.f, 0.f));
+    mCube2->SetLocation(glm::vec3(-1.f, 0.f, 0.f));
 
     return true;
 }
@@ -205,6 +209,7 @@ void Application::Render() {
     PrepareRender();
 
     mCube->DrawCube(mCamera.GetProjView());
+    mCube2->DrawCube(mCamera.GetProjView());
 
     DrawImGui();
 
@@ -250,6 +255,7 @@ LRESULT Application::HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, 
 void Application::Update(double CurrTime, double ElapsedTime) {
     mCamera.LookAt(glm::vec3(0.f, 2.0f, -5.0f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.0f, 1.f, 0.f));
     mCube->Update(CurrTime, ElapsedTime);
+    mCube2->Update(CurrTime, ElapsedTime);
 }
 
 void Application::DrawImGui() {

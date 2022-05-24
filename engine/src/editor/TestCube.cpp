@@ -129,7 +129,11 @@ void TestCube::Update(double CurrTime, double ElapsedTime) {
     if (gInputManager->IsKeyPressed(bt::input::Key::D)) {
         CubeRotation -= ElapsedTime * CubeRotationSpeed;
     }
-    mCubeModelTransform = glm::rotate(glm::mat4(1.0f), static_cast<float>(CubeRotation),
+
+
+    mCubeModelTransform = glm::translate(glm::mat4(1.0f), mLocation);
+
+    mCubeModelTransform = glm::rotate(mCubeModelTransform, static_cast<float>(CubeRotation),
                                       glm::vec3(0.f, 1.f, 0.f));
 }
 

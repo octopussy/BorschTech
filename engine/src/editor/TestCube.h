@@ -20,6 +20,10 @@ class TestCube {
     void Update(double CurrTime, double ElapsedTime);
     void DrawCube(const glm::mat4 &ProjView);
 
+    void SetLocation(const glm::vec3& NewLoc) {
+        mLocation = NewLoc;
+    }
+
   private:
 
     void CreateVertexBuffer();
@@ -28,6 +32,7 @@ class TestCube {
 
   private:
 
+    glm::vec3 mLocation;
     glm::mat4 mCubeModelTransform;
 
     // Cube
