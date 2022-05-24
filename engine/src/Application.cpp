@@ -38,22 +38,6 @@ bool Application::Init(HWND hWnd) {
 
     bt::log::Debug("===== BorschTech initialized!!! ======");
 
-    CreateSwapChain(m_pSwapChain, hWnd, false);
-
-    // Initialize Dear ImGUI
-    const auto &SC = m_pSwapChain->GetDesc();
-    m_pImGui = std::make_unique<ImGuiImplWin32>(hWnd, m_pDevice, SC.ColorBufferFormat, SC.DepthBufferFormat);
-
-    mCube = std::make_unique<TestCube>();
-    mCube2 = std::make_unique<TestCube>();
-
-    mCube->SetLocation(glm::vec3(1.f, 0.f, 0.f));
-    mCube2->SetLocation(glm::vec3(-1.f, 0.f, 0.f));
-
-    return true;
-}
-
-bool Application::CreateSwapChain(RefCntAutoPtr<ISwapChain> &result, HWND hWnd, bool isAdditional) {
     SwapChainDesc SCDesc;
     switch (m_DeviceType) {
 #if D3D11_SUPPORTED
@@ -67,10 +51,6 @@ bool Application::CreateSwapChain(RefCntAutoPtr<ISwapChain> &result, HWND hWnd, 
 
             m_pEngineFactory = pFactoryD3D11;
             pFactoryD3D11->CreateDeviceAndContextsD3D11(EngineCI, &m_pDevice, &m_pImmediateContext);
-            Win32NativeWindow Window{hWnd};
-            pFactoryD3D11->CreateSwapChainD3D11(m_pDevice, m_pImmediateContext, SCDesc, FullScreenModeDesc{},
-                                                Window,
-                                                &result);
         }
             break;
 #endif
@@ -89,10 +69,6 @@ bool Application::CreateSwapChain(RefCntAutoPtr<ISwapChain> &result, HWND hWnd, 
             m_pEngineFactory = pFactoryD3D12;
 
             pFactoryD3D12->CreateDeviceAndContextsD3D12(EngineCI, &m_pDevice, &m_pImmediateContext);
-            Win32NativeWindow Window{hWnd};
-            pFactoryD3D12->CreateSwapChainD3D12(m_pDevice, m_pImmediateContext, SCDesc, FullScreenModeDesc{},
-                                                Window,
-                                                &m_pSwapChain);
         }
             break;
 #endif
@@ -130,11 +106,95 @@ bool Application::CreateSwapChain(RefCntAutoPtr<ISwapChain> &result, HWND hWnd, 
             pFactoryVk->CreateDeviceAndContextsVk(EngineCI, &m_pDevice, &m_pImmediateContext);
 
             m_pEngineFactory = pFactoryVk;
+        }
+            break;
+#endif
 
-            if (!m_pSwapChain && hWnd != nullptr) {
-                Win32NativeWindow Window{hWnd};
-                pFactoryVk->CreateSwapChainVk(m_pDevice, m_pImmediateContext, SCDesc, Window, &m_pSwapChain);
-            }
+        default:
+            std::cerr << "Unknown/unsupported device type";
+            return false;
+            break;
+    }
+
+    CreateSwapChain(m_pSwapChain, hWnd, false);
+
+    // Initialize Dear ImGUI
+    const auto &SC = m_pSwapChain->GetDesc();
+    m_pImGui = std::make_unique<ImGuiImplWin32>(hWnd, m_pDevice, SC.ColorBufferFormat, SC.DepthBufferFormat);
+
+    mCube = std::make_unique<TestCube>();
+    mCube2 = std::make_unique<TestCube>();
+
+    mCube->SetLocation(glm::vec3(1.f, 0.f, 0.f));
+    mCube2->SetLocation(glm::vec3(-1.f, 0.f, 0.f));
+
+    return true;
+}
+
+bool Application::CreateSwapChain(RefCntAutoPtr<ISwapChain> &result, HWND hWnd, bool isAdditional) {
+    SwapChainDesc SCDesc;
+
+    if (isAdditional) {
+        SCDesc.IsPrimary = !isAdditional;
+    }
+
+    switch (m_DeviceType) {
+#if D3D11_SUPPORTED
+        case RENDER_DEVICE_TYPE_D3D11: {
+            Win32NativeWindow Window{hWnd};
+            ((IEngineFactoryD3D11 *) m_pEngineFactory.RawPtr())->CreateSwapChainD3D11(m_pDevice,
+                                                                                      m_pImmediateContext,
+                                                                                      SCDesc,
+                                                                                      FullScreenModeDesc{},
+                                                                                      Window,
+                                                                                      &result);
+        }
+            break;
+#endif
+
+
+#if D3D12_SUPPORTED
+        case RENDER_DEVICE_TYPE_D3D12: {
+            Win32NativeWindow Window{hWnd};
+            ((IEngineFactoryD3D12 *) m_pEngineFactory.RawPtr())->CreateSwapChainD3D12(m_pDevice,
+                                                                                      m_pImmediateContext,
+                                                                                      SCDesc,
+                                                                                      FullScreenModeDesc{},
+                                                                                      Window,
+                                                                                      &result);
+        }
+            break;
+#endif
+
+
+#if GL_SUPPORTED
+        case RENDER_DEVICE_TYPE_GL: {
+#    if EXPLICITLY_LOAD_ENGINE_GL_DLL
+            // Load the dll and import GetEngineFactoryOpenGL() function
+            auto GetEngineFactoryOpenGL = LoadGraphicsEngineOpenGL();
+#    endif
+            auto *pFactoryOpenGL = GetEngineFactoryOpenGL();
+
+            m_pEngineFactory = pFactoryOpenGL;
+
+            EngineGLCreateInfo EngineCI;
+            EngineCI.Window.hWnd = hWnd;
+
+            pFactoryOpenGL->CreateDeviceAndSwapChainGL(EngineCI, &m_pDevice, &m_pImmediateContext, SCDesc,
+                                                       &m_pSwapChain);
+        }
+            break;
+#endif
+
+
+#if VULKAN_SUPPORTED
+        case RENDER_DEVICE_TYPE_VULKAN: {
+            Win32NativeWindow Window{hWnd};
+            ((IEngineFactoryVk *) m_pEngineFactory.RawPtr())->CreateSwapChainVk(m_pDevice,
+                                                                                m_pImmediateContext,
+                                                                                SCDesc,
+                                                                                Window,
+                                                                                &result);
         }
             break;
 #endif

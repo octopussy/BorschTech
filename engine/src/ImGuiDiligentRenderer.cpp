@@ -27,6 +27,7 @@
 
 #include <cstddef>
 
+#include "Application.h"
 #include "ImGuiDiligentRenderer.hpp"
 #include "RenderDevice.h"
 #include "DeviceContext.h"
@@ -63,6 +64,8 @@ typedef enum { MDT_EFFECTIVE_DPI = 0, MDT_ANGULAR_DPI = 1, MDT_RAW_DPI = 2, MDT_
 // If you are new to dear imgui or creating a new binding for dear imgui, it is recommended that you completely ignore this section first..
 //--------------------------------------------------------------------------------------------------------
 
+using namespace Diligent;
+
 // Helper structure we store in the void* RenderUserData field of each ImGuiViewport to easily retrieve our backend data.
 struct ImGui_ImplWin32_ViewportData
 {
@@ -94,6 +97,14 @@ struct ImGui_ImplWin32_Data {
 #endif
 
   ImGui_ImplWin32_Data() { memset((void *) this, 0, sizeof(*this)); }
+};
+
+struct BorschDiligentRenderData {
+
+};
+
+struct BorschDiligentViewportData {
+  RefCntAutoPtr<ISwapChain> pSwapChain;
 };
 
 static void ImGui_ImplWin32_InitPlatformInterface();
@@ -384,8 +395,8 @@ ImGuiDiligentRenderer::ImGuiDiligentRenderer(
     ::QueryPerformanceFrequency((LARGE_INTEGER*)&perf_frequency);
     ::QueryPerformanceCounter((LARGE_INTEGER*)&perf_counter);
 
-    ImGui_ImplWin32_Data *bd = IM_NEW(ImGui_ImplWin32_Data)();
-    IO.BackendPlatformUserData = (void *) bd;
+    ImGui_ImplWin32_Data *platformData = IM_NEW(ImGui_ImplWin32_Data)();
+    IO.BackendPlatformUserData = (void *) platformData;
     IO.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;         // We can honor GetMouseCursor() values (optional)
     IO.BackendFlags |= ImGuiBackendFlags_HasSetMousePos;          // We can honor io.WantSetMousePos requests (optional, rarely used)
     IO.BackendFlags |= ImGuiBackendFlags_PlatformHasViewports;    // We can create multi-viewports on the Platform side (optional)
@@ -398,17 +409,23 @@ ImGuiDiligentRenderer::ImGuiDiligentRenderer(
     ImGuiIO& io = ImGui::GetIO();
     IM_ASSERT(io.BackendRendererUserData == NULL && "Already initialized a renderer backend!");
 
-    bd->hWnd = (HWND) hwnd;
-    bd->WantUpdateHasGamepad = true;
-    bd->WantUpdateMonitors = true;
-    bd->TicksPerSecond = perf_frequency;
-    bd->Time = perf_counter;
-    bd->LastMouseCursor = ImGuiMouseCursor_COUNT;
+    platformData->hWnd = (HWND) hwnd;
+    platformData->WantUpdateHasGamepad = true;
+    platformData->WantUpdateMonitors = true;
+    platformData->TicksPerSecond = perf_frequency;
+    platformData->Time = perf_counter;
+    platformData->LastMouseCursor = ImGuiMouseCursor_COUNT;
 
     ImGuiViewport *main_viewport = ImGui::GetMainViewport();
-    main_viewport->PlatformHandle = main_viewport->PlatformHandleRaw = (void *) bd->hWnd;
+    main_viewport->PlatformHandle = main_viewport->PlatformHandleRaw = (void *) platformData->hWnd;
     if (IO.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         ImGui_ImplWin32_InitPlatformInterface();
+
+
+    BorschDiligentRenderData* bd = IM_NEW(BorschDiligentRenderData)();
+    IO.BackendRendererUserData = (void*)bd;
+    IO.BackendFlags |= ImGuiBackendFlags_RendererHasVtxOffset;  // We can honor the ImDrawCmd::VtxOffset field, allowing for large meshes.
+    IO.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;  // We can create multi-viewports on the Renderer side (optional)
 
     if (IO.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
         ImGui_ImplDX12_InitPlatformInterface();
@@ -1612,21 +1629,27 @@ static void ImGui_ImplWin32_InitPlatformInterface() {
     main_viewport->PlatformHandle = (void *) bd->hWnd;
 }
 
-static void ImGui_ImplDX12_CreateWindow(ImGuiViewport* viewport)
+// Backend data stored in io.BackendRendererUserData to allow support for multiple Dear ImGui contexts
+// It is STRONGLY preferred that you use docking branch with multi-viewports (== single Dear ImGui context + multiple windows) instead of multiple Dear ImGui contexts.
+static BorschDiligentRenderData* ImGui_ImplDX12_GetBackendData()
+{
+    return ImGui::GetCurrentContext() ? (BorschDiligentRenderData*)ImGui::GetIO().BackendRendererUserData : NULL;
+}
+
+static void Diligent_CreateWindow(ImGuiViewport* viewport)
 {
     HWND hwnd = viewport->PlatformHandleRaw ? (HWND)viewport->PlatformHandleRaw : (HWND)viewport->PlatformHandle;
 
     IM_ASSERT(hwnd != 0);
-/*
-    ImGui_ImplDX12_Data* bd = ImGui_ImplDX12_GetBackendData();
-    ImGui_ImplDX12_ViewportData* vd = IM_NEW(ImGui_ImplDX12_ViewportData)(bd->numFramesInFlight);
+
+    BorschDiligentRenderData* bd = ImGui_ImplDX12_GetBackendData();
+    BorschDiligentViewportData* vd = IM_NEW(BorschDiligentViewportData)(/*bd->numFramesInFlight*/);
     viewport->RendererUserData = vd;
 
-    // PlatformHandleRaw should always be a HWND, whereas PlatformHandle might be a higher-level handle (e.g. GLFWWindow*, SDL_Window*).
-    // Some backends will leave PlatformHandleRaw NULL, in which case we assume PlatformHandle will contain the HWND.
-    HWND hwnd = viewport->PlatformHandleRaw ? (HWND)viewport->PlatformHandleRaw : (HWND)viewport->PlatformHandle;
-    IM_ASSERT(hwnd != 0);
+    bt::gTheApp->CreateSwapChain(vd->pSwapChain, hwnd, true);
 
+    IM_ASSERT(vd->pSwapChain.RawPtr() != nullptr);
+/*
     vd->FrameIndex = UINT_MAX;
 
     // Create command queue.
@@ -1725,14 +1748,13 @@ static void ImGui_ImplDX12_CreateWindow(ImGuiViewport* viewport)
 
 static void ImGui_ImplDX12_DestroyWindow(ImGuiViewport* viewport)
 {
-/*
     // The main viewport (owned by the application) will always have RendererUserData == NULL since we didn't create the data for it.
-    ImGui_ImplDX12_Data* bd = ImGui_ImplDX12_GetBackendData();
-    if (ImGui_ImplDX12_ViewportData* vd = (ImGui_ImplDX12_ViewportData*)viewport->RendererUserData)
+    BorschDiligentRenderData* bd = ImGui_ImplDX12_GetBackendData();
+    if (BorschDiligentViewportData* vd = (BorschDiligentViewportData*)viewport->RendererUserData)
     {
-        ImGui_WaitForPendingOperations(vd);
+        //ImGui_WaitForPendingOperations(vd);
 
-        SafeRelease(vd->CommandQueue);
+      /*  SafeRelease(vd->CommandQueue);
         SafeRelease(vd->CommandList);
         SafeRelease(vd->SwapChain);
         SafeRelease(vd->RtvDescHeap);
@@ -1746,36 +1768,33 @@ static void ImGui_ImplDX12_DestroyWindow(ImGuiViewport* viewport)
             SafeRelease(vd->FrameCtx[i].CommandAllocator);
             ImGui_ImplDX12_DestroyRenderBuffers(&vd->FrameRenderBuffers[i]);
         }
-        IM_DELETE(vd);
+        IM_DELETE(vd);*/
     }
-    viewport->RendererUserData = NULL;
-*/
+    viewport->RendererUserData = nullptr;
 }
 
 static void ImGui_ImplDX12_SetWindowSize(ImGuiViewport* viewport, ImVec2 size)
 {
-    bt::log::Debug("Resize");
-/*
-    ImGui_ImplDX12_Data* bd = ImGui_ImplDX12_GetBackendData();
-    ImGui_ImplDX12_ViewportData* vd = (ImGui_ImplDX12_ViewportData*)viewport->RendererUserData;
+    BorschDiligentRenderData* bd = ImGui_ImplDX12_GetBackendData();
+    BorschDiligentViewportData* vd = (BorschDiligentViewportData*)viewport->RendererUserData;
 
-    ImGui_WaitForPendingOperations(vd);
+    //ImGui_WaitForPendingOperations(vd);
 
-    for (UINT i = 0; i < bd->numFramesInFlight; i++)
-        SafeRelease(vd->FrameCtx[i].RenderTarget);
+   // for (UINT i = 0; i < bd->numFramesInFlight; i++)
+   //     SafeRelease(vd->FrameCtx[i].RenderTarget);
 
-    if (vd->SwapChain)
+    if (vd->pSwapChain)
     {
-        ID3D12Resource* back_buffer = NULL;
+        vd->pSwapChain->Resize(size.x, size.y);
+       /* ID3D12Resource* back_buffer = NULL;
         vd->SwapChain->ResizeBuffers(0, (UINT)size.x, (UINT)size.y, DXGI_FORMAT_UNKNOWN, 0);
         for (UINT i = 0; i < bd->numFramesInFlight; i++)
         {
             vd->SwapChain->GetBuffer(i, IID_PPV_ARGS(&back_buffer));
             bd->pd3dDevice->CreateRenderTargetView(back_buffer, NULL, vd->FrameCtx[i].RenderTargetCpuDescriptors);
             vd->FrameCtx[i].RenderTarget = back_buffer;
-        }
+        }*/
     }
-*/
 }
 
 static void ImGui_ImplDX12_RenderWindow(ImGuiViewport* viewport, void*)
@@ -1822,19 +1841,17 @@ static void ImGui_ImplDX12_RenderWindow(ImGuiViewport* viewport, void*)
 
 static void ImGui_ImplDX12_SwapBuffers(ImGuiViewport* viewport, void*)
 {
-/*
-    ImGui_ImplDX12_ViewportData* vd = (ImGui_ImplDX12_ViewportData*)viewport->RendererUserData;
+    BorschDiligentViewportData* vd = (BorschDiligentViewportData*)viewport->RendererUserData;
 
-    vd->SwapChain->Present(0, 0);
-    while (vd->Fence->GetCompletedValue() < vd->FenceSignaledValue)
-        ::SwitchToThread();
-*/
+    vd->pSwapChain->Present();
+   /* while (vd->Fence->GetCompletedValue() < vd->FenceSignaledValue)
+        ::SwitchToThread();*/
 }
 
 static void ImGui_ImplDX12_InitPlatformInterface()
 {
     ImGuiPlatformIO& platform_io = ImGui::GetPlatformIO();
-    platform_io.Renderer_CreateWindow = ImGui_ImplDX12_CreateWindow;
+    platform_io.Renderer_CreateWindow = Diligent_CreateWindow;
     platform_io.Renderer_DestroyWindow = ImGui_ImplDX12_DestroyWindow;
     platform_io.Renderer_SetWindowSize = ImGui_ImplDX12_SetWindowSize;
     platform_io.Renderer_RenderWindow = ImGui_ImplDX12_RenderWindow;

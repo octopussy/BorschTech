@@ -99,7 +99,7 @@ class Application {
     RefCntAutoPtr<IDeviceContext>   m_pImmediateContext;
     //std::vector<RefCntAutoPtr<IDeviceContext>> m_pDeviceContexts;
     RefCntAutoPtr<ISwapChain>       m_pSwapChain;
-    RENDER_DEVICE_TYPE m_DeviceType = Diligent::RENDER_DEVICE_TYPE_D3D11;
+    RENDER_DEVICE_TYPE m_DeviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
 
     std::unique_ptr<ImGuiImpl> m_pImGui;
 

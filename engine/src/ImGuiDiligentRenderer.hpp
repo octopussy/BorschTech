@@ -56,10 +56,6 @@ namespace bt {
 
 using namespace Diligent;
 
-struct DiligentImGuiViewportData {
-  RefCntAutoPtr<ISwapChain> pSwapChain;
-};
-
 class ImGuiDiligentRenderer {
   public:
     ImGuiDiligentRenderer(
