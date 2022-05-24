@@ -277,7 +277,6 @@ void Application::DrawImGui() {
     ImGui::ShowDemoWindow(&showGui);
 
     if (ImGui::Begin("Test")) {
-        //ImGui::GetWindowDrawList()->AddImage();
         ImGui::End();
     }
 

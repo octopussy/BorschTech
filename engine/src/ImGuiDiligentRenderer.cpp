@@ -1,30 +1,3 @@
-/*
- *  Copyright 2019-2022 Diligent Graphics LLC
- *  Copyright 2015-2019 Egor Yusov
- *
- *  Licensed under the Apache License, Version 2.0 (the "License");
- *  you may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- *  Unless required by applicable law or agreed to in writing, software
- *  distributed under the License is distributed on an "AS IS" BASIS,
- *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *  See the License for the specific language governing permissions and
- *  limitations under the License.
- *
- *  In no event and under no legal theory, whether in tort (including negligence),
- *  contract, or otherwise, unless required by applicable law (such as deliberate
- *  and grossly negligent acts) or agreed to in writing, shall any Contributor be
- *  liable for any damages, including any direct, indirect, special, incidental,
- *  or consequential damages of any character arising as a result of this License or
- *  out of the use or inability to use the software (including but not limited to damages
- *  for loss of goodwill, work stoppage, computer failure or malfunction, or any and
- *  all other commercial damages or losses), even if such Contributor has been advised
- *  of the possibility of such damages.
- */
-
 #include <cstddef>
 
 #include "Application.h"
@@ -35,78 +8,9 @@
 
 #include "Core/Logging.h"
 
-#ifndef WIN32_LEAN_AND_MEAN
-#define WIN32_LEAN_AND_MEAN
-#endif
-
-#include <Windows.h>
-#include <windowsx.h> // GET_X_LPARAM(), GET_Y_LPARAM()
-#include <tchar.h>
-#include <dwmapi.h>
-
-#ifndef IMGUI_IMPL_WIN32_DISABLE_GAMEPAD
-
-#include <xinput.h>
-
-typedef DWORD (WINAPI *PFN_XInputGetCapabilities)(DWORD, DWORD, XINPUT_CAPABILITIES *);
-
-typedef DWORD (WINAPI *PFN_XInputGetState)(DWORD, XINPUT_STATE *);
-
-#endif
-
-#ifndef DPI_ENUMS_DECLARED
-typedef enum {
-  PROCESS_DPI_UNAWARE = 0, PROCESS_SYSTEM_DPI_AWARE = 1, PROCESS_PER_MONITOR_DPI_AWARE = 2
-} PROCESS_DPI_AWARENESS;
-typedef enum {
-  MDT_EFFECTIVE_DPI = 0, MDT_ANGULAR_DPI = 1, MDT_RAW_DPI = 2, MDT_DEFAULT = MDT_EFFECTIVE_DPI
-} MONITOR_DPI_TYPE;
-#endif
-
-//--------------------------------------------------------------------------------------------------------
-// MULTI-VIEWPORT / PLATFORM INTERFACE SUPPORT
-// This is an _advanced_ and _optional_ feature, allowing the backend to create and handle multiple viewports simultaneously.
-// If you are new to dear imgui or creating a new binding for dear imgui, it is recommended that you completely ignore this section first..
-//--------------------------------------------------------------------------------------------------------
-
 using namespace Diligent;
 
-class bt::ImGuiDiligentRenderer *RENDERER;
-
-struct BorschDiligentRenderData {
-  bt::ImGuiDiligentRenderer* Renderer;
-};
-
 static void InitPlatformInterface();
-
-typedef HRESULT(WINAPI *PFN_GetDpiForMonitor)(HMONITOR, MONITOR_DPI_TYPE, UINT *, UINT *);
-
-// Perform our own check with RtlVerifyVersionInfo() instead of using functions from <VersionHelpers.h> as they
-// require a manifest to be functional for checks above 8.1. See https://github.com/ocornut/imgui/issues/4200
-static BOOL _IsWindowsVersionOrGreater(WORD major, WORD minor, WORD) {
-    typedef LONG(WINAPI *PFN_RtlVerifyVersionInfo)(OSVERSIONINFOEXW *, ULONG, ULONGLONG);
-    static PFN_RtlVerifyVersionInfo RtlVerifyVersionInfoFn = NULL;
-    if (RtlVerifyVersionInfoFn == NULL)
-        if (HMODULE ntdllModule = ::GetModuleHandleA("ntdll.dll"))
-            RtlVerifyVersionInfoFn = (PFN_RtlVerifyVersionInfo) GetProcAddress(ntdllModule, "RtlVerifyVersionInfo");
-    if (RtlVerifyVersionInfoFn == NULL)
-        return FALSE;
-
-    RTL_OSVERSIONINFOEXW versionInfo = {};
-    ULONGLONG conditionMask = 0;
-    versionInfo.dwOSVersionInfoSize = sizeof(RTL_OSVERSIONINFOEXW);
-    versionInfo.dwMajorVersion = major;
-    versionInfo.dwMinorVersion = minor;
-    VER_SET_CONDITION(conditionMask, VER_MAJORVERSION, VER_GREATER_EQUAL);
-    VER_SET_CONDITION(conditionMask, VER_MINORVERSION, VER_GREATER_EQUAL);
-    return (RtlVerifyVersionInfoFn(&versionInfo, VER_MAJORVERSION | VER_MINORVERSION, conditionMask) == 0) ? TRUE
-                                                                                                           : FALSE;
-}
-
-#define _IsWindowsVistaOrGreater()   _IsWindowsVersionOrGreater(HIBYTE(0x0600), LOBYTE(0x0600), 0) // _WIN32_WINNT_VISTA
-#define _IsWindows8OrGreater()       _IsWindowsVersionOrGreater(HIBYTE(0x0602), LOBYTE(0x0602), 0) // _WIN32_WINNT_WIN8
-#define _IsWindows8Point1OrGreater() _IsWindowsVersionOrGreater(HIBYTE(0x0603), LOBYTE(0x0603), 0) // _WIN32_WINNT_WINBLUE
-#define _IsWindows10OrGreater()      _IsWindowsVersionOrGreater(HIBYTE(0x0A00), LOBYTE(0x0A00), 0) // _WIN32_WINNT_WINTHRESHOLD / _WIN32_WINNT_WIN10
 
 namespace bt {
 using namespace Diligent;
@@ -340,19 +244,13 @@ ImGuiDiligentRenderer::ImGuiDiligentRenderer(
     void *hwnd,
     IRenderDevice *pDevice,
     TEXTURE_FORMAT BackBufferFmt,
-    TEXTURE_FORMAT DepthBufferFmt,
-    Uint32 InitialVertexBufferSize,
-    Uint32 InitialIndexBufferSize) :
+    TEXTURE_FORMAT DepthBufferFmt) :
 // clang-format off
     m_pDevice{pDevice},
     m_BackBufferFmt{BackBufferFmt},
-    m_DepthBufferFmt{DepthBufferFmt},
-    m_VertexBufferSize{InitialVertexBufferSize},
-    m_IndexBufferSize{InitialIndexBufferSize}
+    m_DepthBufferFmt{DepthBufferFmt}
 // clang-format on
 {
-
-    RENDERER = this;
     //Check support vertex offset
     m_BaseVertexSupported = pDevice->GetAdapterInfo().DrawCommand.CapFlags & DRAW_COMMAND_CAP_FLAG_BASE_VERTEX;
 
@@ -385,22 +283,21 @@ ImGuiDiligentRenderer::ImGuiDiligentRenderer(
 ImGuiDiligentRenderer::~ImGuiDiligentRenderer() {
 }
 
-void ImGuiDiligentRenderer::NewFrame(Uint32 RenderSurfaceWidth,
-                                     Uint32 RenderSurfaceHeight,
-                                     SURFACE_TRANSFORM SurfacePreTransform) {
-    if (!m_pPSO)
+void ImGuiDiligentRenderer::NewFrame(SURFACE_TRANSFORM SurfacePreTransform) {
+    if (!m_pPSO) {
         CreateDeviceObjects();
-    m_RenderSurfaceWidth = RenderSurfaceWidth;
-    m_RenderSurfaceHeight = RenderSurfaceHeight;
+    }
     m_SurfacePreTransform = SurfacePreTransform;
+}
+
+void ImGuiDiligentRenderer::Render() {
+    RenderDrawData(&pMainViewportData, ImGui::GetDrawData());
 }
 
 void ImGuiDiligentRenderer::EndFrame() {
 }
 
 void ImGuiDiligentRenderer::InvalidateDeviceObjects() {
-    m_pVB.Release();
-    m_pIB.Release();
     m_pVertexConstantBuffer.Release();
     m_pPSO.Release();
     m_pFontSRV.Release();
@@ -693,16 +590,17 @@ float4 ImGuiDiligentRenderer::TransformClipRect(const ImVec2 &DisplaySize, const
     }
 }
 
-static void BorschRenderDrawData(BorschDiligentViewportData *viewportData,
-                                 ImDrawData *pDrawData) {
+void ImGuiDiligentRenderer::RenderDrawData(BorschDiligentViewportData *viewportData,
+                                           ImDrawData *pDrawData) {
 
-    auto Context = gTheApp->GetImmediateContext();
-    Int32 ViewportWidth = pDrawData->DisplaySize.x;
-    Int32 ViewportHeight = pDrawData->DisplaySize.y;
+    auto pCtx = gTheApp->GetImmediateContext();
 
     ITextureView *pRTV = viewportData->pSwapChain->GetCurrentBackBufferRTV();
     ITextureView *pDSV = viewportData->pSwapChain->GetDepthBufferDSV();
-    Context->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+    pCtx->SetRenderTargets(1, &pRTV, pDSV, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+
+    Int32 ViewportWidth = pDrawData->DisplaySize.x;
+    Int32 ViewportHeight = pDrawData->DisplaySize.y;
 
     // Avoid rendering when minimized
     if (pDrawData->DisplaySize.x <= 0.0f || pDrawData->DisplaySize.y <= 0.0f)
@@ -720,7 +618,7 @@ static void BorschRenderDrawData(BorschDiligentViewportData *viewportData,
         VBDesc.Size = viewportData->m_VertexBufferSize * sizeof(ImDrawVert);
         VBDesc.Usage = USAGE_DYNAMIC;
         VBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
-        RENDERER->m_pDevice->CreateBuffer(VBDesc, nullptr, &viewportData->m_pVB);
+        m_pDevice->CreateBuffer(VBDesc, nullptr, &viewportData->m_pVB);
     }
 
     if (!viewportData->m_pIB || static_cast<int>(viewportData->m_IndexBufferSize) < pDrawData->TotalIdxCount) {
@@ -734,227 +632,12 @@ static void BorschRenderDrawData(BorschDiligentViewportData *viewportData,
         IBDesc.Size = viewportData->m_IndexBufferSize * sizeof(ImDrawIdx);
         IBDesc.Usage = USAGE_DYNAMIC;
         IBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
-        RENDERER->m_pDevice->CreateBuffer(IBDesc, nullptr, &viewportData->m_pIB);
+        m_pDevice->CreateBuffer(IBDesc, nullptr, &viewportData->m_pIB);
     }
 
     {
-        MapHelper<ImDrawVert> Verices(Context, viewportData->m_pVB, MAP_WRITE, MAP_FLAG_DISCARD);
-        MapHelper<ImDrawIdx> Indices(Context, viewportData->m_pIB, MAP_WRITE, MAP_FLAG_DISCARD);
-
-        ImDrawVert *pVtxDst = Verices;
-        ImDrawIdx *pIdxDst = Indices;
-        for (Int32 CmdListID = 0; CmdListID < pDrawData->CmdListsCount; CmdListID++) {
-            const ImDrawList *pCmdList = pDrawData->CmdLists[CmdListID];
-            memcpy(pVtxDst, pCmdList->VtxBuffer.Data, pCmdList->VtxBuffer.Size * sizeof(ImDrawVert));
-            memcpy(pIdxDst, pCmdList->IdxBuffer.Data, pCmdList->IdxBuffer.Size * sizeof(ImDrawIdx));
-            pVtxDst += pCmdList->VtxBuffer.Size;
-            pIdxDst += pCmdList->IdxBuffer.Size;
-        }
-    }
-
-    // Setup orthographic projection matrix into our constant buffer
-    // Our visible imgui space lies from pDrawData->DisplayPos (top left) to pDrawData->DisplayPos+data_data->DisplaySize (bottom right).
-    // DisplayPos is (0,0) for single viewport apps.
-    {
-        // DisplaySize always refers to the logical dimensions that account for pre-transform, hence
-        // the aspect ratio will be correct after applying appropriate rotation.
-        float L = pDrawData->DisplayPos.x;
-        float R = pDrawData->DisplayPos.x + pDrawData->DisplaySize.x;
-        float T = pDrawData->DisplayPos.y;
-        float B = pDrawData->DisplayPos.y + pDrawData->DisplaySize.y;
-
-        // clang-format off
-        float4x4 Projection
-            {
-                2.0f / (R - L), 0.0f, 0.0f, 0.0f,
-                0.0f, 2.0f / (T - B), 0.0f, 0.0f,
-                0.0f, 0.0f, 0.5f, 0.0f,
-                (R + L) / (L - R), (T + B) / (B - T), 0.5f, 1.0f
-            };
-        // clang-format on
-
-        // Bake pre-transform into projection
-/*
-        switch (m_SurfacePreTransform) {
-            case SURFACE_TRANSFORM_IDENTITY:
-                // Nothing to do
-                break;
-
-            case SURFACE_TRANSFORM_ROTATE_90:
-                // The image content is rotated 90 degrees clockwise.
-                Projection *= float4x4::RotationZ(-PI_F * 0.5f);
-                break;
-
-            case SURFACE_TRANSFORM_ROTATE_180:
-                // The image content is rotated 180 degrees clockwise.
-                Projection *= float4x4::RotationZ(-PI_F * 1.0f);
-                break;
-
-            case SURFACE_TRANSFORM_ROTATE_270:
-                // The image content is rotated 270 degrees clockwise.
-                Projection *= float4x4::RotationZ(-PI_F * 1.5f);
-                break;
-
-            case SURFACE_TRANSFORM_OPTIMAL:
-                    UNEXPECTED(
-                    "SURFACE_TRANSFORM_OPTIMAL is only valid as parameter during swap chain initialization.");
-                break;
-
-            case SURFACE_TRANSFORM_HORIZONTAL_MIRROR:
-            case SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_90:
-            case SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_180:
-            case SURFACE_TRANSFORM_HORIZONTAL_MIRROR_ROTATE_270:
-                    UNEXPECTED("Mirror transforms are not supported");
-                break;
-
-            default:
-                    UNEXPECTED("Unknown transform");
-        }
-*/
-
-        MapHelper<float4x4> CBData(Context, RENDERER->m_pVertexConstantBuffer, MAP_WRITE, MAP_FLAG_DISCARD);
-        *CBData = Projection;
-    }
-
-    auto SetupRenderState = [&]() //
-    {
-      // Setup shader and vertex buffers
-      IBuffer *pVBs[] = {viewportData->m_pVB};
-      Context->SetVertexBuffers(0, 1, pVBs, nullptr, RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
-                                SET_VERTEX_BUFFERS_FLAG_RESET);
-      Context->SetIndexBuffer(viewportData->m_pIB, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-      Context->SetPipelineState(RENDERER->m_pPSO);
-
-      const float blend_factor[4] = {0.f, 0.f, 0.f, 0.f};
-      Context->SetBlendFactors(blend_factor);
-
-      Viewport vp;
-      vp.Width = static_cast<float>(ViewportWidth) * pDrawData->FramebufferScale.x;
-      vp.Height = static_cast<float>(ViewportHeight) * pDrawData->FramebufferScale.y;
-      vp.MinDepth = 0.0f;
-      vp.MaxDepth = 1.0f;
-      vp.TopLeftX = vp.TopLeftY = 0;
-      Context->SetViewports(1,
-                            &vp,
-                            static_cast<Uint32>(ViewportWidth * pDrawData->FramebufferScale.x),
-                            static_cast<Uint32>(ViewportHeight * pDrawData->FramebufferScale.y));
-    };
-
-    SetupRenderState();
-
-    // Render command lists
-    // (Because we merged all buffers into a single one, we maintain our own offset into them)
-    Uint32 GlobalIdxOffset = 0;
-    Uint32 GlobalVtxOffset = 0;
-
-    ITextureView *pLastTextureView = nullptr;
-    for (Int32 CmdListID = 0; CmdListID < pDrawData->CmdListsCount; CmdListID++) {
-        const ImDrawList *pCmdList = pDrawData->CmdLists[CmdListID];
-        for (Int32 CmdID = 0; CmdID < pCmdList->CmdBuffer.Size; CmdID++) {
-            const ImDrawCmd *pCmd = &pCmdList->CmdBuffer[CmdID];
-            if (pCmd->UserCallback != NULL) {
-                // User callback, registered via ImDrawList::AddCallback()
-                // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
-                if (pCmd->UserCallback == ImDrawCallback_ResetRenderState)
-                    SetupRenderState();
-                else
-                    pCmd->UserCallback(pCmdList, pCmd);
-            } else {
-                // Apply scissor/clipping rectangle
-                float4 ClipRect //
-                    {
-                        (pCmd->ClipRect.x - pDrawData->DisplayPos.x) * pDrawData->FramebufferScale.x,
-                        (pCmd->ClipRect.y - pDrawData->DisplayPos.y) * pDrawData->FramebufferScale.y,
-                        (pCmd->ClipRect.z - pDrawData->DisplayPos.x) * pDrawData->FramebufferScale.x,
-                        (pCmd->ClipRect.w - pDrawData->DisplayPos.y) * pDrawData->FramebufferScale.y //
-                    };
-                // Apply pretransform
-                ClipRect = RENDERER->TransformClipRect(pDrawData->DisplaySize, ClipRect);
-
-                Rect Scissor //
-                    {
-                        static_cast<Int32>(ClipRect.x),
-                        static_cast<Int32>(ClipRect.y),
-                        static_cast<Int32>(ClipRect.z),
-                        static_cast<Int32>(ClipRect.w) //
-                    };
-                Context->SetScissorRects(1,
-                                         &Scissor,
-                                         static_cast<Uint32>(ViewportWidth * pDrawData->FramebufferScale.x),
-                                         static_cast<Uint32>(ViewportHeight * pDrawData->FramebufferScale.y));
-
-                // Bind texture
-                auto *pTextureView = reinterpret_cast<ITextureView *>(pCmd->TextureId);
-                VERIFY_EXPR(pTextureView);
-                if (pTextureView != pLastTextureView) {
-                    pLastTextureView = pTextureView;
-                    RENDERER->m_pTextureVar->Set(pTextureView);
-                    Context->CommitShaderResources(RENDERER->m_pSRB, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
-                }
-
-                DrawIndexedAttribs DrawAttrs{
-                    pCmd->ElemCount, sizeof(ImDrawIdx) == sizeof(Uint16) ? VT_UINT16 : VT_UINT32,
-                    DRAW_FLAG_VERIFY_STATES
-                };
-                DrawAttrs.FirstIndexLocation = pCmd->IdxOffset + GlobalIdxOffset;
-                if (RENDERER->m_BaseVertexSupported) {
-                    DrawAttrs.BaseVertex = pCmd->VtxOffset + GlobalVtxOffset;
-                } else {
-                    IBuffer *pVBs[] = {viewportData->m_pVB};
-                    Uint64 VtxOffsets[] = {sizeof(ImDrawVert) * (pCmd->VtxOffset + GlobalVtxOffset)};
-                    Context->SetVertexBuffers(0, 1, pVBs, VtxOffsets, RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
-                                              SET_VERTEX_BUFFERS_FLAG_NONE);
-                }
-                Context->DrawIndexed(DrawAttrs);
-            }
-        }
-        GlobalIdxOffset += pCmdList->IdxBuffer.Size;
-        GlobalVtxOffset += pCmdList->VtxBuffer.Size;
-    }
-}
-
-
-void ImGuiDiligentRenderer::RenderDrawData(IDeviceContext *pCtx, ImDrawData *pDrawData) {
-
-    BorschRenderDrawData(&pMainViewportData, pDrawData);
-    return;
-
-    // Avoid rendering when minimized
-    if (pDrawData->DisplaySize.x <= 0.0f || pDrawData->DisplaySize.y <= 0.0f)
-        return;
-
-    // Create and grow vertex/index buffers if needed
-    if (!m_pVB || static_cast<int>(m_VertexBufferSize) < pDrawData->TotalVtxCount) {
-        m_pVB.Release();
-        while (static_cast<int>(m_VertexBufferSize) < pDrawData->TotalVtxCount)
-            m_VertexBufferSize *= 2;
-
-        BufferDesc VBDesc;
-        VBDesc.Name = "Imgui vertex buffer";
-        VBDesc.BindFlags = BIND_VERTEX_BUFFER;
-        VBDesc.Size = m_VertexBufferSize * sizeof(ImDrawVert);
-        VBDesc.Usage = USAGE_DYNAMIC;
-        VBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
-        m_pDevice->CreateBuffer(VBDesc, nullptr, &m_pVB);
-    }
-
-    if (!m_pIB || static_cast<int>(m_IndexBufferSize) < pDrawData->TotalIdxCount) {
-        m_pIB.Release();
-        while (static_cast<int>(m_IndexBufferSize) < pDrawData->TotalIdxCount)
-            m_IndexBufferSize *= 2;
-
-        BufferDesc IBDesc;
-        IBDesc.Name = "Imgui index buffer";
-        IBDesc.BindFlags = BIND_INDEX_BUFFER;
-        IBDesc.Size = m_IndexBufferSize * sizeof(ImDrawIdx);
-        IBDesc.Usage = USAGE_DYNAMIC;
-        IBDesc.CPUAccessFlags = CPU_ACCESS_WRITE;
-        m_pDevice->CreateBuffer(IBDesc, nullptr, &m_pIB);
-    }
-
-    {
-        MapHelper<ImDrawVert> Verices(pCtx, m_pVB, MAP_WRITE, MAP_FLAG_DISCARD);
-        MapHelper<ImDrawIdx> Indices(pCtx, m_pIB, MAP_WRITE, MAP_FLAG_DISCARD);
+        MapHelper<ImDrawVert> Verices(pCtx, viewportData->m_pVB, MAP_WRITE, MAP_FLAG_DISCARD);
+        MapHelper<ImDrawIdx> Indices(pCtx, viewportData->m_pIB, MAP_WRITE, MAP_FLAG_DISCARD);
 
         ImDrawVert *pVtxDst = Verices;
         ImDrawIdx *pIdxDst = Indices;
@@ -1032,25 +715,25 @@ void ImGuiDiligentRenderer::RenderDrawData(IDeviceContext *pCtx, ImDrawData *pDr
     auto SetupRenderState = [&]() //
     {
       // Setup shader and vertex buffers
-      IBuffer *pVBs[] = {m_pVB};
+      IBuffer *pVBs[] = {viewportData->m_pVB};
       pCtx->SetVertexBuffers(0, 1, pVBs, nullptr, RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
                              SET_VERTEX_BUFFERS_FLAG_RESET);
-      pCtx->SetIndexBuffer(m_pIB, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
+      pCtx->SetIndexBuffer(viewportData->m_pIB, 0, RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
       pCtx->SetPipelineState(m_pPSO);
 
       const float blend_factor[4] = {0.f, 0.f, 0.f, 0.f};
       pCtx->SetBlendFactors(blend_factor);
 
       Viewport vp;
-      vp.Width = static_cast<float>(m_RenderSurfaceWidth) * pDrawData->FramebufferScale.x;
-      vp.Height = static_cast<float>(m_RenderSurfaceHeight) * pDrawData->FramebufferScale.y;
+      vp.Width = static_cast<float>(ViewportWidth) * pDrawData->FramebufferScale.x;
+      vp.Height = static_cast<float>(ViewportHeight) * pDrawData->FramebufferScale.y;
       vp.MinDepth = 0.0f;
       vp.MaxDepth = 1.0f;
       vp.TopLeftX = vp.TopLeftY = 0;
       pCtx->SetViewports(1,
                          &vp,
-                         static_cast<Uint32>(m_RenderSurfaceWidth * pDrawData->FramebufferScale.x),
-                         static_cast<Uint32>(m_RenderSurfaceHeight * pDrawData->FramebufferScale.y));
+                         static_cast<Uint32>(ViewportWidth * pDrawData->FramebufferScale.x),
+                         static_cast<Uint32>(ViewportHeight * pDrawData->FramebufferScale.y));
     };
 
     SetupRenderState();
@@ -1093,8 +776,8 @@ void ImGuiDiligentRenderer::RenderDrawData(IDeviceContext *pCtx, ImDrawData *pDr
                     };
                 pCtx->SetScissorRects(1,
                                       &Scissor,
-                                      static_cast<Uint32>(m_RenderSurfaceWidth * pDrawData->FramebufferScale.x),
-                                      static_cast<Uint32>(m_RenderSurfaceHeight * pDrawData->FramebufferScale.y));
+                                      static_cast<Uint32>(ViewportWidth * pDrawData->FramebufferScale.x),
+                                      static_cast<Uint32>(ViewportHeight * pDrawData->FramebufferScale.y));
 
                 // Bind texture
                 auto *pTextureView = reinterpret_cast<ITextureView *>(pCmd->TextureId);
@@ -1113,7 +796,7 @@ void ImGuiDiligentRenderer::RenderDrawData(IDeviceContext *pCtx, ImDrawData *pDr
                 if (m_BaseVertexSupported) {
                     DrawAttrs.BaseVertex = pCmd->VtxOffset + GlobalVtxOffset;
                 } else {
-                    IBuffer *pVBs[] = {m_pVB};
+                    IBuffer *pVBs[] = {viewportData->m_pVB};
                     Uint64 VtxOffsets[] = {sizeof(ImDrawVert) * (pCmd->VtxOffset + GlobalVtxOffset)};
                     pCtx->SetVertexBuffers(0, 1, pVBs, VtxOffsets, RESOURCE_STATE_TRANSITION_MODE_TRANSITION,
                                            SET_VERTEX_BUFFERS_FLAG_NONE);
@@ -1125,12 +808,10 @@ void ImGuiDiligentRenderer::RenderDrawData(IDeviceContext *pCtx, ImDrawData *pDr
         GlobalVtxOffset += pCmdList->VtxBuffer.Size;
     }
 }
-} // namespace Diligent
+} // namespace
 
-// Backend data stored in io.BackendRendererUserData to allow support for multiple Dear ImGui contexts
-// It is STRONGLY preferred that you use docking branch with multi-viewports (== single Dear ImGui context + multiple windows) instead of multiple Dear ImGui contexts.
-static BorschDiligentRenderData *ImGui_ImplDX12_GetBackendData() {
-    return ImGui::GetCurrentContext() ? (BorschDiligentRenderData *) ImGui::GetIO().BackendRendererUserData : NULL;
+static bt::BorschDiligentRenderData *ImGui_ImplDX12_GetBackendData() {
+    return ImGui::GetCurrentContext() ? (bt::BorschDiligentRenderData *) ImGui::GetIO().BackendRendererUserData : NULL;
 }
 
 static void Diligent_CreateWindow(ImGuiViewport *viewport) {
@@ -1138,7 +819,7 @@ static void Diligent_CreateWindow(ImGuiViewport *viewport) {
 
     IM_ASSERT(hwnd != 0);
 
-    BorschDiligentRenderData *bd = ImGui_ImplDX12_GetBackendData();
+    bt::BorschDiligentRenderData *bd = ImGui_ImplDX12_GetBackendData();
     auto *vd = IM_NEW(bt::BorschDiligentViewportData)(/*bd->numFramesInFlight*/);
     viewport->RendererUserData = vd;
 
@@ -1149,12 +830,12 @@ static void Diligent_CreateWindow(ImGuiViewport *viewport) {
 
 static void ImGui_ImplDX12_DestroyWindow(ImGuiViewport *viewport) {
     // The main viewport (owned by the application) will always have RendererUserData == NULL since we didn't create the data for it.
-    BorschDiligentRenderData *bd = ImGui_ImplDX12_GetBackendData();
+    bt::BorschDiligentRenderData *bd = ImGui_ImplDX12_GetBackendData();
     viewport->RendererUserData = nullptr;
 }
 
 static void ImGui_ImplDX12_SetWindowSize(ImGuiViewport *viewport, ImVec2 size) {
-    BorschDiligentRenderData *bd = ImGui_ImplDX12_GetBackendData();
+    bt::BorschDiligentRenderData *bd = ImGui_ImplDX12_GetBackendData();
     auto vd = (bt::BorschDiligentViewportData *) viewport->RendererUserData;
     if (vd->pSwapChain) {
         vd->pSwapChain->Resize(size.x, size.y);
@@ -1162,8 +843,10 @@ static void ImGui_ImplDX12_SetWindowSize(ImGuiViewport *viewport, ImVec2 size) {
 }
 
 static void ImGui_ImplDX12_RenderWindow(ImGuiViewport *viewport, void *) {
+    auto bd = ImGui_ImplDX12_GetBackendData();
     auto vd = (bt::BorschDiligentViewportData *) viewport->RendererUserData;
-    bt::BorschRenderDrawData(vd, viewport->DrawData);
+
+    bd->Renderer->RenderDrawData(vd, viewport->DrawData);
 }
 
 static void ImGui_ImplDX12_SwapBuffers(ImGuiViewport *viewport, void *) {

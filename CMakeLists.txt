@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.16)
 project(engine VERSION 0.1.0)
 
-find_package(Vulkan REQUIRED FATAL_ERROR) # error
+# find_package(Vulkan REQUIRED FATAL_ERROR) # error
 
 set(CMAKE_CONFIGURATION_TYPES "Release" "Debug")
 
@@ -46,9 +46,9 @@ option(GLFW_BUILD_TESTS "Build the GLFW test programs" OFF)
 option(GLFW_BUILD_DOCS "Build the GLFW documentation" OFF)
 option(GLFW_INSTALL "Generate installation target" OFF)
 option(GLFW_DOCUMENT_INTERNALS "Include internals in documentation" OFF)
-#add_subdirectory(${GLFW_DIR} binary_dir EXCLUDE_FROM_ALL)
-add_subdirectory(${GLFW_DIR})
-include_directories(${GLFW_DIR}/include Vulkan::Headers)
+# add_subdirectory(${GLFW_DIR} binary_dir EXCLUDE_FROM_ALL)
+# add_subdirectory(${GLFW_DIR})
+# include_directories(${GLFW_DIR}/include Vulkan::Headers)
 
 # GLM
 add_subdirectory(${THIRD_PARTY_DIR}/glm)
@@ -63,12 +63,11 @@ enable_testing()
 
 add_executable(engine WIN32
         engine/src/Engine.cpp
-        engine/src/test/win32_dx12.cpp
 
-        ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
-        ${IMGUI_DIR}/backends/imgui_impl_win32.cpp
-        ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
-        ${IMGUI_DIR}/backends/imgui_impl_dx12.cpp
+     #   ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+     #   ${IMGUI_DIR}/backends/imgui_impl_win32.cpp
+     #   ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
+     #   ${IMGUI_DIR}/backends/imgui_impl_dx12.cpp
 
         ${IMGUI_DIR}/imgui.cpp
         ${IMGUI_DIR}/imgui_draw.cpp
@@ -80,7 +79,6 @@ add_executable(engine WIN32
         
 
         #engine/src/main.cpp
-        engine/src/EditorApp.cpp
         engine/src/ImGuiDiligentRenderer.cpp
         engine/src/ImGuiDiligentRenderer.hpp
         engine/src/ImGuiImpl.cpp
@@ -98,12 +96,12 @@ target_link_libraries(engine
         glm::glm
         libDaScript
 
-        Vulkan::Vulkan
-        d3d12.lib
-        dxgi.lib
-        dxguid.lib
+        # Vulkan::Vulkan
+        # d3d12.lib
+        # dxgi.lib
+        # dxguid.lib
 
-        glfw
+        # glfw
         #Threads::Threads
         Diligent-GraphicsEngineD3D11-shared
         Diligent-GraphicsEngineOpenGL-shared

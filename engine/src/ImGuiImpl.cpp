@@ -69,8 +69,7 @@ namespace bt
             style.WindowRounding = 0.0f;
             style.Colors[ImGuiCol_WindowBg].w = 1.0f;
         }
-        m_pRenderer = std::make_unique<ImGuiDiligentRenderer>(
-            hwnd, pDevice, BackBufferFmt, DepthBufferFmt, InitialVertexBufferSize, InitialIndexBufferSize);
+        m_pRenderer = std::make_unique<ImGuiDiligentRenderer>(hwnd, pDevice, BackBufferFmt, DepthBufferFmt);
     }
 
     ImGuiImpl::~ImGuiImpl()
@@ -80,7 +79,7 @@ namespace bt
 
     void ImGuiImpl::NewFrame(Uint32 RenderSurfaceWidth, Uint32 RenderSurfaceHeight, SURFACE_TRANSFORM SurfacePreTransform)
     {
-        m_pRenderer->NewFrame(RenderSurfaceWidth, RenderSurfaceHeight, SurfacePreTransform);
+        m_pRenderer->NewFrame(SurfacePreTransform);
         ImGui::NewFrame();
     }
 
@@ -93,7 +92,8 @@ namespace bt
     {
         // No need to call ImGui::EndFrame as ImGui::Render calls it automatically
         ImGui::Render();
-        m_pRenderer->RenderDrawData(pCtx, ImGui::GetDrawData());
+
+        m_pRenderer->Render();
       // Update and Render additional Platform Windows
      // if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
       {
