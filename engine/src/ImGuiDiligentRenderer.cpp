@@ -126,7 +126,7 @@ struct BorschDiligentViewportData {
 
 };
 
-static void ImGui_ImplDX12_InitPlatformInterface();
+static void InitPlatformInterface();
 
 typedef HRESULT(WINAPI *PFN_GetDpiForMonitor)(HMONITOR, MONITOR_DPI_TYPE, UINT *, UINT *);
 
@@ -424,7 +424,7 @@ ImGuiDiligentRenderer::ImGuiDiligentRenderer(
     IO.BackendFlags |= ImGuiBackendFlags_RendererHasViewports;  // We can create multi-viewports on the Renderer side (optional)
 
     if (IO.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        ImGui_ImplDX12_InitPlatformInterface();
+        InitPlatformInterface();
 
     CreateDeviceObjects();
 }
@@ -1210,7 +1210,7 @@ static void ImGui_ImplDX12_SwapBuffers(ImGuiViewport *viewport, void *) {
     vd->pSwapChain->Present();
 }
 
-static void ImGui_ImplDX12_InitPlatformInterface() {
+static void InitPlatformInterface() {
     ImGuiPlatformIO &platform_io = ImGui::GetPlatformIO();
     platform_io.Renderer_CreateWindow = Diligent_CreateWindow;
     platform_io.Renderer_DestroyWindow = ImGui_ImplDX12_DestroyWindow;

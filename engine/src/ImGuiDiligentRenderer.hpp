@@ -86,10 +86,6 @@ class ImGuiDiligentRenderer {
 
   private:
 
-    void InitPlatformInterface();
-
-  private:
-
   public:
     RefCntAutoPtr<IRenderDevice> m_pDevice;
     RefCntAutoPtr<IShaderResourceBinding> m_pSRB;
