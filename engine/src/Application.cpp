@@ -595,13 +595,15 @@ LRESULT CALLBACK MessageProc(HWND wnd, UINT message, WPARAM wParam, LPARAM lPara
 LRESULT CALLBACK MessageProc(HWND, UINT, WPARAM, LPARAM);
 
 int run_vulkan_imgui_test();
+int run_win31_dx12_test();
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int cmdShow) {
 #if defined(_DEBUG) || defined(DEBUG)
   _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-  return run_vulkan_imgui_test();
+  //return run_vulkan_imgui_test();
+  return run_win31_dx12_test();
 
   gTheApp = std::make_unique<Application>();
 

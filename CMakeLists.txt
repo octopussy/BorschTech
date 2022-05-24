@@ -63,9 +63,13 @@ enable_testing()
 
 add_executable(engine WIN32
         engine/src/Engine.cpp
+        engine/src/test/win32_dx12.cpp
 
         ${IMGUI_DIR}/backends/imgui_impl_glfw.cpp
+        ${IMGUI_DIR}/backends/imgui_impl_win32.cpp
         ${IMGUI_DIR}/backends/imgui_impl_vulkan.cpp
+        ${IMGUI_DIR}/backends/imgui_impl_dx12.cpp
+
         ${IMGUI_DIR}/imgui.cpp
         ${IMGUI_DIR}/imgui_draw.cpp
         ${IMGUI_DIR}/imgui_demo.cpp
@@ -93,7 +97,12 @@ target_link_libraries(engine
         PRIVATE
         glm::glm
         libDaScript
+
         Vulkan::Vulkan
+        d3d12.lib
+        dxgi.lib
+        dxguid.lib
+
         glfw
         #Threads::Threads
         Diligent-GraphicsEngineD3D11-shared
