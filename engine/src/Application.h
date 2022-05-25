@@ -46,6 +46,7 @@
 #include "core/Math.h"
 #include "Camera.h"
 #include "input/InputManager.h"
+#include "editor/RenderTarget.h"
 
 using namespace Diligent;
 
@@ -104,6 +105,9 @@ class Application {
     std::unique_ptr<ImGuiImpl> m_pImGui;
 
     Camera mCamera;
+
+  public:
+    std::unique_ptr<RenderTarget> mTestRenderTarget;
 
     std::unique_ptr<TestCube> mCube;
     std::unique_ptr<TestCube> mCube2;

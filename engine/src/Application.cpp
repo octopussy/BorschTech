@@ -128,6 +128,8 @@ bool Application::Init(HWND hWnd) {
     mCube->SetLocation(glm::vec3(1.f, 0.f, 0.f));
     mCube2->SetLocation(glm::vec3(-1.f, 0.f, 0.f));
 
+    mTestRenderTarget = std::make_unique<RenderTarget>(m_pDevice);
+
     return true;
 }
 
@@ -219,9 +221,12 @@ void Application::Tick(double CurrTime, double ElapsedTime) {
 }
 
 void Application::Render() {
-    PrepareRender();
+
+    mTestRenderTarget->Activate(m_pImmediateContext);
 
     mCube->DrawCube(mCamera.GetProjView());
+
+    PrepareRender();
     mCube2->DrawCube(mCamera.GetProjView());
 
     DrawImGui();
@@ -243,8 +248,6 @@ void Application::PrepareRender() {
     m_pImmediateContext->ClearDepthStencil(pDSV, CLEAR_DEPTH_FLAG, 1.f, 0,
                                            RESOURCE_STATE_TRANSITION_MODE_TRANSITION);
 }
-
-LRESULT BORSCH_ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 LRESULT Application::HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
 
@@ -277,6 +280,7 @@ void Application::DrawImGui() {
     ImGui::ShowDemoWindow(&showGui);
 
     if (ImGui::Begin("Test")) {
+        ImGui::Image(gTheApp->mTestRenderTarget->GetTexture(), ImVec2(256, 256));
         ImGui::End();
     }
 
