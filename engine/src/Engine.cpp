@@ -1,6 +1,7 @@
 #include "daScript/daScript.h"
 
 #include "Engine.h"
+#include "core/Logging.h"
 #include "input/InputManager.h"
 
 using namespace das;
@@ -78,6 +79,7 @@ namespace bt {
 
 
     void Engine::Init(const string &projectRoot, const string &dasRoot) {
+        log::GLogger = std::make_unique<log::Logger>();
         GInputManager = std::make_unique<input::InputManager>();
         GInputManager->Init();
 

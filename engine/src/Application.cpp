@@ -5,19 +5,21 @@
 
 #include "ImGuiImplWin32.hpp"
 #include "Timer.hpp"
-#include "MapHelper.hpp"
 #include "BasicMath.hpp"
 #include "input/InputManager.h"
 #include "core/Logging.h"
-
 #include "editor/TestCube.h"
+#include "core/Logging.h"
 #include "imgui.h"
 
 namespace bt {
 
     std::unique_ptr<Application> gTheApp;
 
-    Application::Application() {}
+    Application::Application() {
+        m_log = new EditorLog();
+        log::GLogger->RegisterDelegate(m_log);
+    }
 
     Application::~Application() {
     }
@@ -285,6 +287,15 @@ namespace bt {
         ImGui::End();
 
 
+        ImGui::SetNextWindowSize(ImVec2(500, 400), ImGuiCond_FirstUseEver);
+        bool p_open = true;
+        ImGui::Begin("Log", &p_open);
+        ImGui::End();
+
+        // Actually call in the regular Log helper (which will Begin() into the same window as we just did)
+        m_log->Draw("Log", &p_open);
+
+
         m_pImGui->Render(m_pImmediateContext);
     }
 
@@ -297,4 +308,8 @@ namespace bt {
         if (m_pSwapChain)
             m_pSwapChain->Resize(Width, Height);
     }
+}
+
+void EditorLog::Append(bt::log::LogLevel level, const string &msg) {
+    AddLog("%s\n", msg.c_str());
 }
