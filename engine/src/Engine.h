@@ -1,10 +1,20 @@
 #pragma once
 
 #include <string>
+#include <memory>
 
-class Engine {
-public:
-    void Init(const std::string& ProjectRoot);
+#include "input/InputManager.h"
 
-    void Shutdown();
-};
+using namespace std;
+
+namespace bt {
+
+    extern std::unique_ptr<class Engine> GEngine;
+    extern std::unique_ptr<input::InputManager> GInputManager;
+
+    class Engine {
+    public:
+        void Init(const string &projectRoot, const string &dasRoot);
+        void Shutdown();
+    };
+}

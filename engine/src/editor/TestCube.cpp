@@ -119,10 +119,10 @@ TestCube::TestCube() {
 }
 
 void TestCube::Update(double CurrTime, double ElapsedTime) {
-    /*if (gInputManager->IsKeyPressed(bt::input::Key::A)) {
+    /*if (GInputManager->IsKeyPressed(bt::input::Key::A)) {
         CubeRotation += ElapsedTime * CubeRotationSpeed;
     }
-    if (gInputManager->IsKeyPressed(bt::input::Key::D)) {
+    if (GInputManager->IsKeyPressed(bt::input::Key::D)) {
         CubeRotation -= ElapsedTime * CubeRotationSpeed;
     }*/
 

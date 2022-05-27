@@ -52,65 +52,65 @@ using namespace Diligent;
 
 namespace bt {
 
-extern std::unique_ptr<Engine> GEngine;
-extern std::unique_ptr<class Application> gTheApp;
-extern std::unique_ptr<bt::input::InputManager> gInputManager;
+    extern std::unique_ptr<class Application> gTheApp;
 
+    class TestCube;
 
-class TestCube;
+    class Application {
+    public:
+        IEngineFactory *GetEngineFactory() { return m_pEngineFactory.RawPtr(); }
 
-class Application {
-  public:
-    IEngineFactory* GetEngineFactory() { return m_pEngineFactory.RawPtr(); }
-    IRenderDevice* GetRenderDevice() { return m_pDevice.RawPtr(); }
-    ISwapChain* GetSwapChain() { return m_pSwapChain.RawPtr(); }
-    IDeviceContext* GetImmediateContext() { return m_pImmediateContext.RawPtr(); }
+        IRenderDevice *GetRenderDevice() { return m_pDevice.RawPtr(); }
 
-    bool CreateSwapChain(RefCntAutoPtr<ISwapChain>& result, HWND hWnd, bool isAdditional);
+        ISwapChain *GetSwapChain() { return m_pSwapChain.RawPtr(); }
 
-    Application();
+        IDeviceContext *GetImmediateContext() { return m_pImmediateContext.RawPtr(); }
 
-    virtual ~Application();
+        bool CreateSwapChain(RefCntAutoPtr<ISwapChain> &result, HWND hWnd, bool isAdditional);
 
-    bool Init(HWND hWnd);
+        Application();
 
-    void Shutdown();
+        virtual ~Application();
 
-    void Tick(double CurrTime, double ElapsedTime);
+        bool Init(HWND hWnd);
 
-    void WindowResize(Uint32 Width, Uint32 Height);
+        void Shutdown();
 
-    virtual LRESULT HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
+        void Tick(double CurrTime, double ElapsedTime);
 
-  private:
-    void Update(double CurrTime, double ElapsedTime);
+        void WindowResize(Uint32 Width, Uint32 Height);
 
-    void PrepareRender();
+        virtual LRESULT HandleWin32Message(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 
-    void Present();
+    private:
+        void Update(double CurrTime, double ElapsedTime);
 
-    void Render();
+        void PrepareRender();
 
-    void DrawImGui();
+        void Present();
 
-  private:
+        void Render();
 
-    RefCntAutoPtr<IEngineFactory>   m_pEngineFactory;
-    RefCntAutoPtr<IRenderDevice>    m_pDevice;
-    RefCntAutoPtr<IDeviceContext>   m_pImmediateContext;
-    //std::vector<RefCntAutoPtr<IDeviceContext>> m_pDeviceContexts;
-    RefCntAutoPtr<ISwapChain>       m_pSwapChain;
-    RENDER_DEVICE_TYPE m_DeviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
+        void DrawImGui();
 
-    std::unique_ptr<ImGuiImpl> m_pImGui;
+    private:
 
-    Camera mCamera;
+        RefCntAutoPtr<IEngineFactory> m_pEngineFactory;
+        RefCntAutoPtr<IRenderDevice> m_pDevice;
+        RefCntAutoPtr<IDeviceContext> m_pImmediateContext;
+        //std::vector<RefCntAutoPtr<IDeviceContext>> m_pDeviceContexts;
+        RefCntAutoPtr<ISwapChain> m_pSwapChain;
+        RENDER_DEVICE_TYPE m_DeviceType = Diligent::RENDER_DEVICE_TYPE_VULKAN;
 
-  public:
-    std::unique_ptr<RenderTarget> mTestRenderTarget;
+        std::unique_ptr<ImGuiImpl> m_pImGui;
 
-    std::unique_ptr<TestCube> mCube;
-    std::unique_ptr<TestCube> mCube2;
-};
+        Camera mCamera;
+
+    public:
+        std::unique_ptr<RenderTarget> mTestRenderTarget;
+
+        std::unique_ptr<TestCube> mCube;
+        std::unique_ptr<TestCube> mCube2;
+    };
 
 }
