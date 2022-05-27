@@ -70,15 +70,9 @@ namespace bt
 
         /// Begins new frame
 
-        /// \param [in] RenderSurfaceWidth  - Render surface width not accounting for pre-transform.
-        ///                                   Most of the time this is the actual swap chain width.
-        /// \param [in] RenderSurfaceHeight - Render surface height not accounting for pre-transform.
-        ///                                   Most of the time this is the actual swap chain height.
         /// \param [in] SurfacePreTransform - Render surface pre-transform.
         ///                                   Most of the time this is the swap chain pre-transform.
-        virtual void NewFrame(Uint32 RenderSurfaceWidth,
-                              Uint32 RenderSurfaceHeight,
-                              SURFACE_TRANSFORM SurfacePreTransform);
+        virtual void NewFrame(SURFACE_TRANSFORM SurfacePreTransform);
 
         virtual void EndFrame();
         virtual void Render(IDeviceContext* pCtx);

@@ -77,7 +77,7 @@ namespace bt
         ImGui::DestroyContext();
     }
 
-    void ImGuiImpl::NewFrame(Uint32 RenderSurfaceWidth, Uint32 RenderSurfaceHeight, SURFACE_TRANSFORM SurfacePreTransform)
+    void ImGuiImpl::NewFrame(SURFACE_TRANSFORM SurfacePreTransform)
     {
         m_pRenderer->NewFrame(SurfacePreTransform);
         ImGui::NewFrame();

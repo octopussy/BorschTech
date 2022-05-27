@@ -55,22 +55,12 @@ namespace bt
         ImGui_ImplWin32_Shutdown();
     }
 
-    void ImGuiImplWin32::NewFrame(Uint32 RenderSurfaceWidth, Uint32 RenderSurfaceHeight, SURFACE_TRANSFORM SurfacePreTransform)
+    void ImGuiImplWin32::NewFrame(SURFACE_TRANSFORM SurfacePreTransform)
     {
         VERIFY(SurfacePreTransform == SURFACE_TRANSFORM_IDENTITY, "Unexpected surface pre-transform");
 
         ImGui_ImplWin32_NewFrame();
-        ImGuiImpl::NewFrame(RenderSurfaceWidth, RenderSurfaceHeight, SurfacePreTransform);
-
-#ifdef DILIGENT_DEBUG
-        {
-            ImGuiIO& io = ImGui::GetIO();
-            VERIFY(io.DisplaySize.x == 0 || io.DisplaySize.x == static_cast<float>(RenderSurfaceWidth),
-                   "Render surface width (", RenderSurfaceWidth, ") does not match io.DisplaySize.x (", io.DisplaySize.x, ")");
-            VERIFY(io.DisplaySize.y == 0 || io.DisplaySize.y == static_cast<float>(RenderSurfaceHeight),
-                   "Render surface height (", RenderSurfaceHeight, ") does not match io.DisplaySize.y (", io.DisplaySize.y, ")");
-        }
-#endif
+        ImGuiImpl::NewFrame(SurfacePreTransform);
     }
 
     // Allow compilation with old Windows SDK. MinGW doesn't have default _WIN32_WINNT/WINVER versions.

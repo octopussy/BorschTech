@@ -118,22 +118,17 @@ TestCube::TestCube() {
     CreateIndexBuffer();
 }
 
-static double CubeRotation = 0.f;
-static double CubeRotationSpeed = 2.f;
-
-
 void TestCube::Update(double CurrTime, double ElapsedTime) {
-    if (gInputManager->IsKeyPressed(bt::input::Key::A)) {
+    /*if (gInputManager->IsKeyPressed(bt::input::Key::A)) {
         CubeRotation += ElapsedTime * CubeRotationSpeed;
     }
     if (gInputManager->IsKeyPressed(bt::input::Key::D)) {
         CubeRotation -= ElapsedTime * CubeRotationSpeed;
-    }
-
+    }*/
 
     mCubeModelTransform = glm::translate(glm::mat4(1.0f), mLocation);
 
-    mCubeModelTransform = glm::rotate(mCubeModelTransform, static_cast<float>(CubeRotation),
+    mCubeModelTransform = glm::rotate(mCubeModelTransform, static_cast<float>(Rotation),
                                       glm::vec3(0.f, 1.f, 0.f));
 }
 

@@ -24,6 +24,10 @@ class TestCube {
         mLocation = NewLoc;
     }
 
+    void SetRotation(double Rot) {
+        Rotation = Rot;
+    }
+
   private:
 
     void CreateVertexBuffer();
@@ -31,6 +35,8 @@ class TestCube {
     void CreateIndexBuffer();
 
   private:
+
+    double Rotation = 0.f;
 
     glm::vec3 mLocation;
     glm::mat4 mCubeModelTransform;
