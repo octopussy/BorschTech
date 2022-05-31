@@ -12,6 +12,8 @@
 #include "core/Logging.h"
 #include "imgui.h"
 
+#include "fmt/core.h"
+
 namespace bt {
 
     std::unique_ptr<Application> gTheApp;
@@ -25,7 +27,9 @@ namespace bt {
     }
 
     bool Application::Init(HWND hWnd) {
-        bt::log::Debug("===== BorschTech initialized!!! ======");
+
+        auto msg = fmt::format("===== BorschTech initialized!!! ====== {}", 723);
+        bt::log::Debug(msg);
 
         SwapChainDesc SCDesc;
         switch (m_DeviceType) {

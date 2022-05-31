@@ -25,6 +25,9 @@ endif()
 add_definitions(-DSFML_STATIC)
 add_definitions(-DMINFFT_SINGLE)
 
+#fmt
+add_subdirectory(${THIRD_PARTY_DIR}/fmt EXCLUDE_FROM_ALL)
+
 # Diligent
 add_subdirectory(${THIRD_PARTY_DIR}/DiligentCore)
 add_subdirectory(${THIRD_PARTY_DIR}/DiligentTools)
@@ -112,6 +115,7 @@ target_compile_options(engine PRIVATE -DUNICODE -DENGINE_DLL)
 target_link_libraries(engine
         PRIVATE
         glm::glm
+        fmt::fmt
         libDaScript
 
         # Vulkan::Vulkan
