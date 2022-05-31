@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.16)
 project(engine VERSION 0.1.0)
 
+include(ExternalProject)
+
 # find_package(Vulkan REQUIRED FATAL_ERROR) # error
 
 set(CMAKE_CONFIGURATION_TYPES "Release" "Debug")
 
-set(THIRD_PARTY_DIR 3rdparty)
+set(THIRD_PARTY_DIR ${PROJECT_SOURCE_DIR}/3rdparty)
 
 if (MSVC)
     if (USE_MSVC_RUNTIME_LIBRARY_DLL)
@@ -60,6 +62,17 @@ set(IMGUI_DIR ${THIRD_PARTY_DIR}/imgui)
 
 include(CTest)
 enable_testing()
+
+ExternalProject_Add(spdlog
+        PREFIX spdlog
+        SOURCE_DIR ${THIRD_PARTY_DIR}/spdlog
+        CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+        -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+        -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+        -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
+        -DCMAKE_INSTALL_PREFIX=${STAGING_DIR}
+        -DSPDLOG_BUILD_SHARED=OFF
+        )
 
 add_executable(engine WIN32
         engine/src/Engine.cpp
@@ -117,13 +130,13 @@ target_link_libraries(engine
        # Diligent-Imgui
 
         # do something
-        ${THIRD_PARTY_DIR}/DiligentCore/Common/Debug/Diligent-Common
-        ${THIRD_PARTY_DIR}/DiligentCore/Graphics/GraphicsTools/Debug/Diligent-GraphicsTools
-        ${THIRD_PARTY_DIR}/DiligentCore/Graphics/GraphicsAccessories/Debug/Diligent-GraphicsAccessories
-        ${THIRD_PARTY_DIR}/DiligentCore/Primitives/Debug/Diligent-Primitives
-        ${THIRD_PARTY_DIR}/DiligentCore/Platforms/Win32/Debug/Diligent-Win32Platform
-        ${THIRD_PARTY_DIR}/DiligentCore/Platforms/Basic/Debug/Diligent-BasicPlatform
-        ${THIRD_PARTY_DIR}/DiligentTools/RenderStateNotation/Debug/Diligent-RenderStateNotation
+        Diligent-Common
+        Diligent-GraphicsTools
+        Diligent-GraphicsAccessories
+        Diligent-Primitives
+        # Diligent-Win32Platform
+        Diligent-BasicPlatform
+        Diligent-RenderStateNotation
         )
 
 copy_required_dlls(engine)
@@ -146,6 +159,11 @@ target_include_directories(engine
         "${THIRD_PARTY_DIR}/DiligentTools/Graphics/Imgui/interface"
         )
 
+target_include_directories(
+        engine
+        PUBLIC ${STAGING_DIR}/include/
+)
+
 target_compile_definitions(engine PRIVATE UNICODE _UNICODE)
 
 target_compile_features(engine
@@ -155,7 +173,7 @@ target_compile_features(engine
         
       
 
-ADD_DEPENDENCIES(engine daScript)
+ADD_DEPENDENCIES(engine daScript spdlog)
 SETUP_CPP11(engine)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})

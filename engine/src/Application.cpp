@@ -304,9 +304,7 @@ namespace bt {
     }
 
     void Application::WindowResize(Uint32 Width, Uint32 Height) {
-        mCamera.SetViewPortSize(Width, Height);
-        if (m_pSwapChain)
-            m_pSwapChain->Resize(Width, Height);
+
     }
 }
 
