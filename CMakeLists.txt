@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
-project(engine VERSION 0.1.0)
+project(engine VERSION 0.1)
 
 include(ExternalProject)
+
+message("Staging dir: ${STAGING_DIR}")
 
 # find_package(Vulkan REQUIRED FATAL_ERROR) # error
 
@@ -66,7 +68,13 @@ set(IMGUI_DIR ${THIRD_PARTY_DIR}/imgui)
 include(CTest)
 enable_testing()
 
-ExternalProject_Add(spdlog
+# spdlog
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
+set(CMAKE_POSITION_INDEPENDENT_CODE TRUE)
+
+add_subdirectory(${THIRD_PARTY_DIR}/spdlog)
+#[[ExternalProject_Add(spdlog
         PREFIX spdlog
         SOURCE_DIR ${THIRD_PARTY_DIR}/spdlog
         CMAKE_ARGS -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
@@ -75,7 +83,7 @@ ExternalProject_Add(spdlog
         -DCMAKE_TOOLCHAIN_FILE=${CMAKE_TOOLCHAIN_FILE}
         -DCMAKE_INSTALL_PREFIX=${STAGING_DIR}
         -DSPDLOG_BUILD_SHARED=OFF
-        )
+        )]]
 
 add_executable(engine WIN32
         engine/src/Engine.cpp
@@ -116,6 +124,7 @@ target_link_libraries(engine
         PRIVATE
         glm::glm
         fmt::fmt
+        spdlog::spdlog
         libDaScript
 
         # Vulkan::Vulkan

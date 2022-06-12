@@ -213,7 +213,6 @@ namespace bt {
     }
 
     void Application::Render() {
-
         mTestRenderTarget->Activate(m_pImmediateContext);
 
         mCube->DrawCube(mCamera.GetProjView());

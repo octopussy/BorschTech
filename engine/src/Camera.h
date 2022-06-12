@@ -27,11 +27,11 @@ namespace bt {
                    mUp(vec3(0.f, 1.f, 0.f)),
                    mFov(70.f),
                    mAspectRatio(1.f),
+                   mZNear(0.1f),
+                   mZFar(1000.0f),
                    mView(mat4(1.f)),
                    mProj(mat4(1.f)),
-                   mProjView(mat4(1.f)),
-                   mZNear(0.1f),
-                   mZFar(1000.0f)
+                   mProjView(mat4(1.f))
                    {}
 
         void LookAt(const vec3 &Position, const vec3 &Target, const vec3 &Up) {
