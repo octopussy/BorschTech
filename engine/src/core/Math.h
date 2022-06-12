@@ -14,3 +14,8 @@
 typedef glm::vec<3, double, glm::defaultp> Vector;
 typedef glm::vec<4, double, glm::defaultp> Vector4;
 typedef glm::mat<4, 4, double, glm::defaultp> Matrix;
+typedef glm::mat<4, 4, float, glm::defaultp> MatrixF;
+
+inline Matrix MatrixTranspose(const Matrix& src) {
+    return glm::transpose(src);
+}

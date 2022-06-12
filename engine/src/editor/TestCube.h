@@ -6,7 +6,7 @@
 #include "RenderDevice.h"
 #include "DeviceContext.h"
 #include "SwapChain.h"
-#include "glm/detail/type_mat4x4.hpp"
+#include "core/Math.h"
 
 namespace bt {
 
@@ -18,9 +18,9 @@ class TestCube {
     TestCube();
 
     void Update(double CurrTime, double ElapsedTime);
-    void DrawCube(const glm::mat4 &ProjView);
+    void DrawCube(const Matrix &ProjView);
 
-    void SetLocation(const glm::vec3& NewLoc) {
+    void SetLocation(const Vector& NewLoc) {
         mLocation = NewLoc;
     }
 
@@ -38,8 +38,8 @@ class TestCube {
 
     double Rotation = 0.f;
 
-    glm::vec3 mLocation;
-    glm::mat4 mCubeModelTransform;
+    Vector mLocation;
+    Matrix mCubeModelTransform;
 
     // Cube
     RefCntAutoPtr<IPipelineState> m_pPSOCube;

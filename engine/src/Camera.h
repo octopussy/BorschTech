@@ -1,46 +1,44 @@
 #pragma once
 
-#include "Core/Math.h"
+#include "core/Math.h"
 #include "BasicTypes.h"
 
-
-using namespace glm;
 using namespace Diligent;
 
 namespace bt {
 
     class Camera {
-        vec3 mPosition;
-        vec3 mDirection;
-        vec3 mUp;
+        Vector mPosition;
+        Vector mDirection;
+        Vector mUp;
 
         float mFov;
         float mAspectRatio;
         float mZNear;
         float mZFar;
-        mat4 mView;
-        mat4 mProj;
-        mat4 mProjView;
+        Matrix mView;
+        Matrix mProj;
+        Matrix mProjView;
     public:
-        Camera() : mPosition(vec3(0.f)),
-                   mDirection(vec3(0.f, 0.f, 1.f)),
-                   mUp(vec3(0.f, 1.f, 0.f)),
+        Camera() : mPosition(Vector(0.f)),
+                   mDirection(Vector(0.f, 0.f, 1.f)),
+                   mUp(Vector(0.f, 1.f, 0.f)),
                    mFov(70.f),
                    mAspectRatio(1.f),
                    mZNear(0.1f),
                    mZFar(1000.0f),
-                   mView(mat4(1.f)),
-                   mProj(mat4(1.f)),
-                   mProjView(mat4(1.f))
+                   mView(Matrix(1.f)),
+                   mProj(Matrix(1.f)),
+                   mProjView(Matrix(1.f))
                    {}
 
-        void LookAt(const vec3 &Position, const vec3 &Target, const vec3 &Up) {
+        void LookAt(const Vector &Position, const Vector &Target, const Vector &Up) {
             mPosition = Position;
             mDirection = Target - Position;
             mUp = Up;
         }
 
-        [[nodiscard]] const mat4& GetProjView() {
+        [[nodiscard]] const Matrix & GetProjView() {
             Update();
             return mProjView;
         }

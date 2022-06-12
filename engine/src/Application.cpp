@@ -118,8 +118,8 @@ namespace bt {
         mCube = std::make_unique<TestCube>();
         mCube2 = std::make_unique<TestCube>();
 
-        mCube->SetLocation(glm::vec3(1.f, 0.f, 0.f));
-        mCube2->SetLocation(glm::vec3(-1.f, 0.f, 0.f));
+        mCube->SetLocation(Vector(1.f, 0.f, 0.f));
+        mCube2->SetLocation(Vector(-1.f, 0.f, 0.f));
 
         mTestRenderTarget = std::make_unique<RenderTarget>(m_pDevice);
 
@@ -259,7 +259,7 @@ namespace bt {
     }
 
     void Application::Update(double CurrTime, double ElapsedTime) {
-        mCamera.LookAt(glm::vec3(0.f, 2.0f, -5.0f), glm::vec3(0.f, 0.f, 0.f), glm::vec3(0.0f, 1.f, 0.f));
+        mCamera.LookAt(Vector(0.f, 2.0f, -5.0f), Vector(0.f, 0.f, 0.f), Vector(0.0f, 1.f, 0.f));
         mCube->Update(CurrTime, ElapsedTime);
         mCube2->Update(CurrTime, ElapsedTime);
     }

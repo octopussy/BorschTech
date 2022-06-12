@@ -126,20 +126,19 @@ void TestCube::Update(double CurrTime, double ElapsedTime) {
         CubeRotation -= ElapsedTime * CubeRotationSpeed;
     }*/
 
-    mCubeModelTransform = glm::translate(glm::mat4(1.0f), mLocation);
+    mCubeModelTransform = glm::translate(Matrix(1.0), mLocation);
 
-    mCubeModelTransform = glm::rotate(mCubeModelTransform, static_cast<float>(Rotation),
-                                      glm::vec3(0.f, 1.f, 0.f));
+    mCubeModelTransform = glm::rotate(mCubeModelTransform, Rotation, Vector(0, 1, 0));
 }
 
-void TestCube::DrawCube(const glm::mat4& ProjView) {
+void TestCube::DrawCube(const Matrix& ProjView) {
     auto immediateContext = gTheApp->GetImmediateContext();
     {
         // Map the buffer and write current world-view-projection matrix
-        MapHelper<glm::mat4> CBConstants(immediateContext, m_VSConstants, MAP_WRITE, MAP_FLAG_DISCARD);
+        MapHelper<MatrixF> CBConstants(immediateContext, m_VSConstants, MAP_WRITE, MAP_FLAG_DISCARD);
 
         auto PVW = ProjView * mCubeModelTransform;
-        *CBConstants = glm::transpose(PVW);//(View * Proj).Transpose();//m_WorldViewProjMatrix.Transpose();
+        *CBConstants = MatrixTranspose(PVW);
     }
 
     // Bind vertex and index buffers
